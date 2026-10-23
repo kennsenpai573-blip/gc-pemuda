@@ -58,7 +58,7 @@ async function loadDashboard(user) {
 
   const { data: profile, error } = await db
     .from("staff_profiles")
-    .select("user_id,display_name,email,role,created_at")
+    .select("user_id,display_name,email,role,approval_status,created_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -71,6 +71,15 @@ async function loadDashboard(user) {
     showLogin(
       "Akun berhasil masuk, tetapi profil member belum ditemukan. Pastikan migrasi member-registration-migration.sql sudah dijalankan di Supabase."
     );
+    return;
+  }
+
+  const approval = profile.approval_status || "approved"; // fallback for projects before migration
+  if (profile.role === "member" && approval !== "approved") {
+    await db.auth.signOut();
+    showLogin(approval === "rejected"
+      ? "Pendaftaran member ditolak oleh Owner. Hubungi Owner jika menurutmu ini keliru."
+      : "Pendaftaran berhasil, tetapi masih menunggu persetujuan Owner. Kamu belum bisa masuk ke Dashboard Member.");
     return;
   }
 
@@ -155,10 +164,9 @@ $("#login-form")?.addEventListener("submit", async e => {
   button.textContent = "Masuk ke Dashboard ↗";
 
   if (error) {
-    say(
-      "#login-status",
-      "Login gagal: periksa email, password, atau konfirmasi email akunmu."
-    );
+    say("#login-status", error.message.includes("Email not confirmed")
+      ? "Email belum dikonfirmasi. Periksa kotak masuk atau folder Spam Gmail."
+      : "Login gagal: " + error.message);
     return;
   }
 

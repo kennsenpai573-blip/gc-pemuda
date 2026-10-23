@@ -5,4 +5,4 @@ Edit `config.js` dan isi:
 2. `SUPABASE_ANON_KEY` dengan publishable key atau anon key lama.
 
 Keduanya adalah konfigurasi publik frontend. Jangan taruh `service_role`/secret key di sini.
-Langkah lengkap: `SETUP.md`.
+Langkah lengkap: `supabase/SETUP.md`.

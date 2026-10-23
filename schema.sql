@@ -3,6 +3,7 @@ create table if not exists public.staff_profiles (
  user_id uuid primary key references auth.users(id) on delete cascade,
  display_name text not null default 'Member' check(char_length(display_name) between 1 and 60),
  email text, role text not null default 'member' check(role in ('owner','admin','member')),
+ approval_status text not null default 'pending' check(approval_status in ('pending','approved','rejected')),
  created_at timestamptz not null default now()
 );
 create table if not exists public.community_groups (

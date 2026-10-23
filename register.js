@@ -17,6 +17,6 @@ $("#register-form").addEventListener("submit", async e => {
   const { data, error } = await client.auth.signUp({ email, password, options: { data: { display_name: displayName }, emailRedirectTo: `${location.origin}/members.html` } });
   if (error) { status.textContent = "Pendaftaran gagal: " + error.message; return; }
   e.currentTarget.reset();
-  status.textContent = data.session ? "Akun berhasil dibuat! Buka Dashboard Member untuk mulai." : "Pendaftaran diterima. Jika konfirmasi email aktif, buka email kamu lalu klik tautan konfirmasi. Setelah itu masuk melalui Dashboard Member.";
-  if (data.session) { const link = document.createElement("a"); link.href = "/member.html"; link.className = "btn secondary"; link.textContent = "Buka Dashboard Member ↗"; status.after(link); }
+  status.textContent = "Pendaftaran berhasil dikirim dan menunggu persetujuan Owner. Setelah Owner menyetujui, kamu bisa login ke Dashboard Member. Jika diminta konfirmasi email oleh Supabase, konfirmasikan email terlebih dahulu.";
+  if (data.session) await client.auth.signOut();
 });

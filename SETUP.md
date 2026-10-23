@@ -42,9 +42,13 @@ Setelah mengisi config dan deploy:
 5. Buka `/register.html` untuk mendaftar dan `/members.html` untuk melihat direktori.
 6. Pastikan Authentication → URL Configuration memiliki Site URL domain Vercel dan redirect URL yang sesuai. Jika konfirmasi email aktif, pengguna perlu mengonfirmasi email.
 
+## Persetujuan pendaftaran member oleh Owner
 
-## Build Vercel dan API
-1. Di repository root, jalankan `npm install`, `npm run check`, lalu `npm run build`.
-2. Pastikan Vercel menggunakan `npm run build` dan output `dist`. `vite.config.js` mengikutkan semua halaman HTML.
-3. Tambahkan `SUPABASE_URL` dan `SUPABASE_ANON_KEY` sebagai Environment Variables Vercel untuk endpoint `/api/groups`. Gunakan hanya publishable/anon key.
-4. Uji `https://DOMAIN-KAMU/api/groups` setelah deploy. Endpoint mengembalikan grup yang `is_published=true`; error konfigurasi harus ditangani di Environment Variables, bukan dengan menaruh secret di frontend.
+1. Buat backup project dan database sebelum mengubah skema.
+2. Buka Supabase Dashboard → SQL Editor, lalu jalankan `member-approval-migration.sql` satu kali. Migrasi ini mempertahankan profil lama dengan status `approved`; akun baru otomatis `pending`.
+3. Pastikan akun Owner yang sudah ada tetap memiliki `role = 'owner'` di `staff_profiles`.
+4. Deploy ulang website dari project ini.
+5. Owner masuk ke `admin.html` lalu buka tab **Pendaftaran**. Pendaftaran baru tampil di sana. Owner dapat memilih **Setujui** atau **Tolak**.
+6. Member berstatus `pending` atau `rejected` tidak dapat membuka Dashboard Member. Setelah disetujui, member dapat login (dan tetap harus mengonfirmasi email jika fitur konfirmasi email Supabase aktif).
+
+Catatan: notifikasi pendaftaran tampil di dashboard Owner saat dashboard dimuat/di-refresh; ini bukan push notification ke luar browser. Jangan pernah menaruh `service_role` key di kode frontend.

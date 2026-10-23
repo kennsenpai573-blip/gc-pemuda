@@ -7,12 +7,13 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.staff_profiles (user_id, display_name, email, role)
+  insert into public.staff_profiles (user_id, display_name, email, role, approval_status)
   values (
     new.id,
     left(coalesce(nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''), 'Member'), 60),
     new.email,
-    'member'
+    'member',
+    'pending'
   )
   on conflict (user_id) do nothing;
   return new;

@@ -23,7 +23,7 @@ const msg = (id, s) => {
 
 function tab(n) {
   all(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === n));
-  ["members", "groups", "intros", "stats", "staff"].forEach(k => {
+  ["approvals", "members", "groups", "intros", "stats", "staff"].forEach(k => {
     const el = $("#tab-" + k);
     if (el) el.classList.toggle("hidden", k !== n);
   });
@@ -85,7 +85,7 @@ async function refresh() {
 
   const { data: members, error: membersError } = await db
     .from("staff_profiles")
-    .select("user_id,display_name,email,role,created_at")
+    .select("user_id,display_name,email,role,approval_status,created_at")
     .order("created_at", { ascending: false });
 
   if (membersError) {
@@ -94,13 +94,24 @@ async function refresh() {
   }
 
   const ms = members || [];
-  $("#metric-members").textContent = ms.filter(m => m.role === "member").length;
+  const pending = ms.filter(m => m.role === "member" && (m.approval_status || "approved") === "pending");
+  $("#pending-count").textContent = pending.length;
+  $("#approvals-list").innerHTML = pending.map(m => item(
+    m.display_name,
+    `${m.email || "Tanpa email"} · Didaftarkan ${new Date(m.created_at).toLocaleString("id-ID")}`,
+    role === "owner"
+      ? `<button class="btn primary" data-member-approve="${esc(m.user_id)}">Setujui</button><button class="btn danger" data-member-reject="${esc(m.user_id)}">Tolak</button>`
+      : "Menunggu keputusan Owner"
+  )).join("") || '<p class="muted">Tidak ada pendaftaran yang menunggu persetujuan.</p>';
+  all("#approvals-list [data-member-approve]").forEach(b => b.addEventListener("click", () => decideMember(b.dataset.memberApprove, "approved")));
+  all("#approvals-list [data-member-reject]").forEach(b => b.addEventListener("click", () => decideMember(b.dataset.memberReject, "rejected")));
+  $("#metric-members").textContent = ms.filter(m => m.role === "member" && (m.approval_status || "approved") === "approved").length;
 
   $("#members-list").innerHTML = ms.map(m => {
     const allowed = role === "owner" ? m.role !== "owner" : m.role === "member";
     return item(
       m.display_name,
-      `${m.email || "Tanpa email"} · ${m.role} · ${m.user_id}`,
+      `${m.email || "Tanpa email"} · ${m.role} · ${m.approval_status || "approved"} · ${m.user_id}`,
       allowed ? `<button class="btn danger" data-remove="${esc(m.user_id)}">Hapus akses</button>` : ""
     );
   }).join("") || '<p class="muted">Belum ada profil.</p>';
@@ -176,6 +187,15 @@ async function refresh() {
     msg("#member-status", error ? "Gagal mengubah peran: " + error.message : "Peran Admin dicabut.");
     refresh();
   }));
+}
+
+async function decideMember(userId, status) {
+  if (role !== "owner") { msg("#approval-status", "Hanya Owner yang dapat memutuskan pendaftaran."); return; }
+  const label = status === "approved" ? "menyetujui" : "menolak";
+  if (!confirm(`Yakin ${label} pendaftaran member ini?`)) return;
+  const { error } = await db.from("staff_profiles").update({ approval_status: status }).eq("user_id", userId).eq("role", "member");
+  msg("#approval-status", error ? "Keputusan gagal: " + error.message : (status === "approved" ? "Member disetujui. Member sekarang dapat login." : "Pendaftaran ditolak. Member tidak dapat login ke dashboard."));
+  await refresh();
 }
 
 async function moderate(id, status) {
