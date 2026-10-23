@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0912"><title>Dashboard Member | — Grup Pemuda`友</title>
+  <meta name="description" content="Dashboard pribadi member — Grup Pemuda`友.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">友</span><span>— Grup Pemuda<small>MEMBER DASHBOARD</small></span></a>
+  <nav><a href="/">Website</a><a href="/members.html">Member Terdaftar</a><a href="/register.html">Daftar Member</a></nav>
+</header>
+<main class="wrap admin-wrap member-dashboard">
+  <div class="eyebrow"><span class="dot"></span> PRIVATE MEMBER AREA</div>
+  <h1 class="member-title">Dashboard <span>Member</span></h1>
+  <p class="muted">Satu tempat untuk mengakses profil dan fitur komunitasmu.</p>
+
+  <section id="login-panel" class="panel admin-panel">
+    <h2>Masuk ke akunmu</h2>
+    <p class="muted">Gunakan email dan password yang kamu pakai saat mendaftar.</p>
+    <form id="login-form" class="form-grid">
+      <label>Email<input name="email" type="email" autocomplete="email" required placeholder="nama@email.com"></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required placeholder="Password akunmu"></label>
+      <button class="btn primary" type="submit">Masuk ke Dashboard ↗</button>
+      <p id="login-status" class="status" aria-live="polite"></p>
+    </form>
+    <p class="muted">Belum punya akun? <a href="/register.html" class="member-link">Daftar member</a>.</p>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="member-welcome panel">
+      <div class="member-avatar">友</div>
+      <div class="member-welcome-copy"><div class="eyebrow">WELCOME BACK</div><h2>Halo, <span id="profile-name">Member</span>!</h2><p class="muted">Senang melihatmu kembali di Grup Pemuda.</p></div>
+      <span id="profile-role" class="role-pill">MEMBER</span>
+    </div>
+    <div class="member-summary-grid">
+      <article class="panel summary-card"><span class="summary-icon">✦</span><p class="muted">Nama tampilan</p><strong id="summary-name">—</strong></article>
+      <article class="panel summary-card"><span class="summary-icon">✉</span><p class="muted">Email akun</p><strong id="summary-email">—</strong></article>
+      <article class="panel summary-card"><span class="summary-icon">⌁</span><p class="muted">Bergabung sejak</p><strong id="summary-date">—</strong></article>
+    </div>
+    <section id="chat-section" class="section member-section chat-section">
+      <div class="eyebrow">PRIVATE MESSAGES</div><h2>Chat Member</h2>
+      <p class="muted">Kirim pesan pribadi ke member lain. Nama dan role pengirim ditampilkan dari profil resmi.</p>
+      <div class="chat-layout panel">
+        <aside class="chat-sidebar">
+          <label class="chat-search-label" for="chat-search">Cari member</label>
+          <input id="chat-search" class="search" type="search" placeholder="Cari nama member…" autocomplete="off">
+          <div id="chat-contacts" class="chat-contacts"><p class="muted">Memuat daftar member…</p></div>
+        </aside>
+        <section class="chat-conversation" aria-label="Percakapan pribadi">
+          <div id="chat-empty" class="chat-empty"><span>友</span><strong>Pilih member untuk mulai chat</strong><p class="muted">Percakapan hanya terlihat oleh pengirim dan penerima.</p></div>
+          <div id="chat-active" class="hidden">
+            <header class="chat-person-header"><div class="chat-person-avatar" id="chat-person-avatar">友</div><div><strong id="chat-person-name">Member</strong><small id="chat-person-role">MEMBER</small></div></header>
+            <div id="chat-messages" class="chat-messages" aria-live="polite"><p class="muted">Memuat pesan…</p></div>
+            <form id="chat-form" class="chat-compose">
+              <textarea id="chat-message-input" rows="1" maxlength="2000" placeholder="Tulis pesan…" aria-label="Tulis pesan" required></textarea>
+              <button class="btn primary chat-send" type="submit" aria-label="Kirim pesan">➤</button>
+            </form>
+            <p id="chat-status" class="status" aria-live="polite"></p>
+          </div>
+        </section>
+      </div>
+    </section>
+    <section class="section member-section">
+      <div class="eyebrow">QUICK ACCESS</div><h2>Pintasan komunitas</h2>
+      <div class="member-shortcuts">
+        <a class="panel shortcut-card" href="/#grup"><span class="shortcut-icon">⌕</span><h3>Jelajahi Grup</h3><p class="muted">Temukan komunitas WhatsApp sesuai minatmu.</p><span class="shortcut-arrow">Buka halaman ↗</span></a>
+        <a class="panel shortcut-card" href="/#intro"><span class="shortcut-icon">✎</span><h3>Buat Intro</h3><p class="muted">Perkenalkan dirimu kepada komunitas.</p><span class="shortcut-arrow">Buat intro ↗</span></a>
+        <a class="panel shortcut-card" href="#chat-section"><span class="shortcut-icon">✉</span><h3>Chat Member</h3><p class="muted">Kirim pesan pribadi kepada member, Owner, atau Admin.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
+        <a class="panel shortcut-card" href="/members.html"><span class="shortcut-icon">♧</span><h3>Member Terdaftar</h3><p class="muted">Lihat nama member yang sudah bergabung.</p><span class="shortcut-arrow">Lihat daftar ↗</span></a>
+        <a class="panel shortcut-card" href="/"><span class="shortcut-icon">⌂</span><h3>Website Utama</h3><p class="muted">Kembali ke halaman utama Grup Pemuda.</p><span class="shortcut-arrow">Kembali ↗</span></a>
+      </div>
+    </section>
+    <div class="member-actions"><p id="dashboard-status" class="status" aria-live="polite"></p><button id="logout" class="btn secondary" type="button">Keluar dari akun</button></div>
+  </section>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© <span id="year"></span> — Grup Pemuda`友</span><a href="/">Kembali ke website</a></div></footer>
+<script type="module" src="/member.js"></script>
+</body>
+</html>
