@@ -32,3 +32,12 @@ Setelah mengisi config dan deploy:
 - Publishable/anon key boleh digunakan frontend, tetapi harus dilindungi oleh RLS.
 - Jangan pernah commit password database, service_role key, atau secret key ke GitHub.
 - Undangan WhatsApp yang dipublikasikan dapat diakses siapa pun.
+
+
+## Mengaktifkan pendaftaran member
+1. Backup project/database sebelum migrasi.
+2. Buka Supabase → SQL Editor → New query.
+3. Salin isi `member-registration-migration.sql`, lalu jalankan sekali.
+4. Deploy file project ini ke Vercel.
+5. Buka `/register.html` untuk mendaftar dan `/members.html` untuk melihat direktori.
+6. Pastikan Authentication → URL Configuration memiliki Site URL domain Vercel dan redirect URL yang sesuai. Jika konfirmasi email aktif, pengguna perlu mengonfirmasi email.

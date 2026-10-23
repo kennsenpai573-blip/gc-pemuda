@@ -38,3 +38,9 @@ Baca `supabase/SETUP.md` untuk langkah mengisi Project URL dan publishable/anon 
 
 ## Pengaturan Supabase tanpa mengedit kode dari nol
 Buka halaman `supabase-setup.html` setelah website berjalan, tempel Project URL dan Publishable/anon public key, lalu unduh `config.js`. Ganti file `config.js` di repository dan deploy ulang di Vercel. Form membuat file di browser; konfigurasi tidak otomatis tersimpan ke hosting.
+
+
+## Fitur Daftar Member
+- Pintasan publik: `/register.html` untuk pendaftaran dan `/members.html` untuk direktori member.
+- Sebelum digunakan, buka Supabase SQL Editor dan jalankan `member-registration-migration.sql` satu kali. Ini menambahkan trigger profil member otomatis dan view publik yang hanya menampilkan nama serta tanggal bergabung.
+- Supabase Auth dapat meminta konfirmasi email sesuai pengaturan project. Jangan pernah menaruh service-role key di frontend.

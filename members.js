@@ -1,0 +1,10 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+const $ = s => document.querySelector(s); $("#year").textContent = new Date().getFullYear();
+const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("PROJECT_ID") && !SUPABASE_ANON_KEY.includes("PASTE_");
+const client = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null; let members = [];
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function render(){const term = $("#member-search").value.trim().toLowerCase();const list=members.filter(m=>(m.display_name||"").toLowerCase().includes(term));$("#member-count").textContent=members.length;$("#members").innerHTML=list.length?list.map((m,i)=>`<article class="group-card"><div class="card-icon">友</div><h3>${esc(m.display_name||"Member")}</h3><p class="muted">Member komunitas</p><p class="muted">Bergabung ${m.created_at?new Date(m.created_at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}):"—"}</p></article>`).join(""):`<div class="empty">${members.length?"Tidak ada nama yang cocok.":"Belum ada member yang ditampilkan."}</div>`;}
+$("#member-search").addEventListener("input",render);
+async function load(){if(!client){$("#members").innerHTML='<div class="empty">Supabase belum dikonfigurasi. Periksa config.js.</div>';return;}const {data,error}=await client.from("public_member_directory").select("display_name,created_at").order("created_at",{ascending:false});if(error){$("#members").innerHTML='<div class="empty">Daftar member belum bisa dimuat. Pastikan migrasi member dijalankan di Supabase.</div>';$("#members-status").textContent="Detail: "+error.message;return;}members=data||[];render();}
+load();
