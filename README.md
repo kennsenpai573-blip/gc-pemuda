@@ -7,7 +7,7 @@
 
 ## Setup dari HP Android
 1. Buat project baru di https://supabase.com.
-2. SQL Editor → New query → jalankan seluruh `supabase/schema.sql`.
+2. SQL Editor → New query → tinjau lalu jalankan `schema.sql` hanya untuk project Supabase baru.
 3. Project Settings → API / API Keys: salin Project URL dan publishable key/anon key.
 4. Ganti placeholder di `config.js`. Jangan pakai service_role/secret key di frontend.
 5. Authentication → Users → Add user, buat akun Owner. Salin UUID user.
@@ -34,7 +34,7 @@
 
 
 ## Panduan koneksi Supabase
-Baca `supabase/SETUP.md` untuk langkah mengisi Project URL dan publishable/anon key, membuat akun Owner, dan menguji koneksi. Jangan gunakan service_role/secret key pada frontend.
+Baca `SETUP.md` untuk langkah mengisi Project URL dan publishable/anon key, membuat akun Owner, dan menguji koneksi. Jangan gunakan service_role/secret key pada frontend.
 
 ## Pengaturan Supabase tanpa mengedit kode dari nol
 Buka halaman `supabase-setup.html` setelah website berjalan, tempel Project URL dan Publishable/anon public key, lalu unduh `config.js`. Ganti file `config.js` di repository dan deploy ulang di Vercel. Form membuat file di browser; konfigurasi tidak otomatis tersimpan ke hosting.
@@ -66,3 +66,19 @@ Buka halaman `supabase-setup.html` setelah website berjalan, tempel Project URL 
 - Jalankan `public-chat-migration.sql` satu kali di Supabase SQL Editor. Migrasi membuat tabel pesan publik, reply-to, reaksi, indeks, dan RLS policies tanpa menghapus tabel chat pribadi.
 - Ketuk gelembung pesan untuk membuka menu: reaction ❤️ 😂 👍 🔥 😮 😢, balas pesan, salin teks, dan hapus pesan milik sendiri. Role diambil dari profil resmi Supabase.
 - Pesan publik terlihat oleh semua pengguna terautentikasi; jangan kirim kata sandi, token, atau informasi sensitif di ruang publik. RLS tetap aktif. Chat memuat ulang otomatis tiap beberapa detik.
+
+
+## Build dan endpoint API
+- Jalankan `npm install`, lalu `npm run check` dan `npm run build` sebelum deploy.
+- `vite.config.js` mendaftarkan seluruh halaman HTML agar dashboard, daftar member, registrasi, dan setup tidak hilang saat build.
+- Endpoint serverless berada di `api/groups.js`, tersedia di `/api/groups`. Atur Environment Variables `SUPABASE_URL` dan `SUPABASE_ANON_KEY` di Vercel. Endpoint hanya membaca grup yang dipublikasikan; ia memakai key publik dan RLS, bukan service-role key.
+- Endpoint aktif adalah `api/groups.js`.
+- Header keamanan dasar ditambahkan di `vercel.json`. Sebelum membuka layanan publik, tetap aktifkan rate limiting/CAPTCHA untuk formulir intro dan pantau penggunaan Supabase.
+
+## Checklist deploy
+1. Pastikan backup ZIP asli tersedia.
+2. Jangan jalankan `schema.sql` pada database aktif tanpa meninjau skema/policy dan membuat backup database. Migrasi fitur masing-masing dijalankan hanya jika dibutuhkan dan setelah ditinjau.
+3. Set `SUPABASE_URL` dan `SUPABASE_ANON_KEY` di Vercel; gunakan publishable/anon key saja.
+4. Build command `npm run build`, output directory `dist`.
+5. Tambahkan domain Vercel pada Supabase Authentication → URL Configuration dan atur Site URL serta redirect URLs yang sesuai.
+6. Uji semua halaman, login Owner/Admin/Member, RLS, grup publik, pendaftaran, chat, dan `/api/groups`.

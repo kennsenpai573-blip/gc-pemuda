@@ -41,3 +41,10 @@ Setelah mengisi config dan deploy:
 4. Deploy file project ini ke Vercel.
 5. Buka `/register.html` untuk mendaftar dan `/members.html` untuk melihat direktori.
 6. Pastikan Authentication → URL Configuration memiliki Site URL domain Vercel dan redirect URL yang sesuai. Jika konfirmasi email aktif, pengguna perlu mengonfirmasi email.
+
+
+## Build Vercel dan API
+1. Di repository root, jalankan `npm install`, `npm run check`, lalu `npm run build`.
+2. Pastikan Vercel menggunakan `npm run build` dan output `dist`. `vite.config.js` mengikutkan semua halaman HTML.
+3. Tambahkan `SUPABASE_URL` dan `SUPABASE_ANON_KEY` sebagai Environment Variables Vercel untuk endpoint `/api/groups`. Gunakan hanya publishable/anon key.
+4. Uji `https://DOMAIN-KAMU/api/groups` setelah deploy. Endpoint mengembalikan grup yang `is_published=true`; error konfigurasi harus ditangani di Environment Variables, bukan dengan menaruh secret di frontend.

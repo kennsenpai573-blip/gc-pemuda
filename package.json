@@ -1,9 +1,18 @@
 {
   "name": "grup-pemuda-community",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "scripts": { "dev": "vite", "build": "vite build" },
-  "dependencies": { "@supabase/supabase-js": "^2.57.0" },
-  "devDependencies": { "vite": "^6.0.0" }
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "check": "node --check app.js && node --check admin.js && node --check member.js && node --check members.js && node --check register.js && node --check config.js && node --check api/groups.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
 }
