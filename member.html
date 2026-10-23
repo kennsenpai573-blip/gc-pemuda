@@ -30,11 +30,11 @@
 
   <section id="dashboard" class="hidden">
     <div class="member-welcome panel">
-      <div class="member-avatar">友</div>
+      <div class="member-avatar" id="member-avatar">友</div>
       <div class="member-welcome-copy"><div class="eyebrow">WELCOME BACK</div><h2>Halo, <span id="profile-name">Member</span>!</h2><p class="muted">Senang melihatmu kembali di Grup Pemuda.</p></div>
       <span id="profile-role" class="role-pill">MEMBER</span>
     </div>
-    <div class="member-summary-grid">
+    <section class="panel profile-edit-panel"><h2>Foto profil</h2><p class="muted">Pilih foto dari galeri HP. Format gambar maksimal 5 MB.</p><form id="avatar-form" class="form-grid"><label>Pilih foto profil<input id="avatar-file" type="file" accept="image/*" required></label><button class="btn primary" type="submit">Simpan Foto Profil</button><p id="avatar-status" class="status" aria-live="polite"></p></form></section><div class="member-summary-grid">
       <article class="panel summary-card"><span class="summary-icon">✦</span><p class="muted">Nama tampilan</p><strong id="summary-name">—</strong></article>
       <article class="panel summary-card"><span class="summary-icon">✉</span><p class="muted">Email akun</p><strong id="summary-email">—</strong></article>
       <article class="panel summary-card"><span class="summary-icon">⌁</span><p class="muted">Bergabung sejak</p><strong id="summary-date">—</strong></article>

@@ -66,3 +66,12 @@ Buka halaman `supabase-setup.html` setelah website berjalan, tempel Project URL 
 - Jalankan `public-chat-migration.sql` satu kali di Supabase SQL Editor. Migrasi membuat tabel pesan publik, reply-to, reaksi, indeks, dan RLS policies tanpa menghapus tabel chat pribadi.
 - Ketuk gelembung pesan untuk membuka menu: reaction ❤️ 😂 👍 🔥 😮 😢, balas pesan, salin teks, dan hapus pesan milik sendiri. Role diambil dari profil resmi Supabase.
 - Pesan publik terlihat oleh semua pengguna terautentikasi; jangan kirim kata sandi, token, atau informasi sensitif di ruang publik. RLS tetap aktif. Chat memuat ulang otomatis tiap beberapa detik.
+
+
+## Fitur media background & foto profil
+
+Setelah deploy, buka Supabase → SQL Editor lalu jalankan seluruh isi `background-profile-migration.sql` satu kali. Migration ini menambahkan tabel pengaturan background, kolom foto profil, bucket Storage `community-media`, serta policy akses. Jangan gunakan service-role key di browser.
+
+- Owner: buka `/admin.html` → tab **Background** → pilih foto/video dari file media HP → unggah dan terapkan. Batas upload background 50 MB; foto dan video MP4/WebM/OGG didukung.
+- Member: masuk ke `/member.html` → bagian **Foto profil** → pilih gambar maksimal 5 MB → simpan.
+- Media menggunakan URL publik supaya background dan avatar dapat ditampilkan pada halaman publik. Jangan unggah foto pribadi/sensitif.

@@ -58,7 +58,7 @@ async function loadDashboard(user) {
 
   const { data: profile, error } = await db
     .from("staff_profiles")
-    .select("user_id,display_name,email,role,approval_status,created_at")
+    .select("user_id,display_name,email,role,approval_status,created_at,avatar_url")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -89,6 +89,8 @@ async function loadDashboard(user) {
     "Member";
 
   $("#profile-name").textContent = name;
+  const avatar = $("#member-avatar");
+  if (avatar) { avatar.textContent = profile.avatar_url ? "" : "友"; avatar.style.backgroundImage = profile.avatar_url ? `url("${profile.avatar_url}")` : ""; avatar.classList.toggle("has-photo", !!profile.avatar_url); }
   $("#summary-name").textContent = name;
   $("#summary-email").textContent =
     profile.email || user.email || "Tidak tersedia";
@@ -172,6 +174,24 @@ $("#login-form")?.addEventListener("submit", async e => {
 
   e.currentTarget.reset();
   await loadDashboard(data.user);
+});
+
+
+$("#avatar-form")?.addEventListener("submit", async e => {
+  e.preventDefault(); const status = $("#avatar-status"); const file = $("#avatar-file")?.files?.[0];
+  if (!db || !currentUser || !file) { if(status) status.textContent = "Silakan masuk dan pilih foto terlebih dahulu."; return; }
+  if (!file.type.startsWith("image/")) { status.textContent = "File harus berupa foto/gambar."; return; }
+  if (file.size > 5 * 1024 * 1024) { status.textContent = "Ukuran foto maksimal 5 MB."; return; }
+  status.textContent = "Mengunggah foto…";
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const path = `avatars/${currentUser.id}/${Date.now()}.${ext}`;
+  const { error: uploadError } = await db.storage.from("community-media").upload(path, file, { upsert: true, contentType: file.type });
+  if (uploadError) { status.textContent = "Upload gagal: " + uploadError.message + ". Pastikan migration Storage sudah dijalankan."; return; }
+  const { data: publicData } = db.storage.from("community-media").getPublicUrl(path);
+  const { error } = await db.from("staff_profiles").update({ avatar_url: publicData.publicUrl }).eq("user_id", currentUser.id);
+  if (error) { status.textContent = "Foto terunggah tetapi profil gagal diperbarui: " + error.message; return; }
+  const avatar = $("#member-avatar"); if (avatar) { avatar.textContent = ""; avatar.style.backgroundImage = `url("${publicData.publicUrl}")`; avatar.classList.add("has-photo"); }
+  status.textContent = "Foto profil berhasil diperbarui.";
 });
 
 function roleLabel(role) {

@@ -28,6 +28,16 @@ $("#intro-form").addEventListener("submit",async e=>{
  status.textContent=error?"Intro belum terkirim. Coba lagi nanti.":"Intro terkirim untuk ditinjau Owner. Terima kasih!";
  if(!error)e.currentTarget.reset();
 });
+async function loadHomeBackground(){
+ if(!client)return;
+ const {data,error}=await client.from("site_settings").select("value").eq("key","home_background").maybeSingle();
+ if(error||!data?.value?.url)return;
+ const hero=document.querySelector("#home-hero"); if(!hero)return;
+ const value=data.value; hero.classList.add("hero-custom-background");
+ if(value.type==="video") { const video=document.createElement("video"); video.className="hero-background-media"; video.src=value.url; video.autoplay=true; video.muted=true; video.loop=true; video.playsInline=true; video.setAttribute("aria-hidden","true"); hero.prepend(video); }
+ else { hero.style.setProperty("--hero-background-image", `url("${String(value.url).replace(/["\\]/g, "")}")`); }
+}
+loadHomeBackground();
 loadGroups();
 // Statistik sederhana: hanya mencatat kunjungan, bukan identitas pengunjung.
 if(client && !sessionStorage.getItem("gp_visit_recorded")){
