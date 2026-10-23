@@ -60,3 +60,9 @@ Buka halaman `supabase-setup.html` setelah website berjalan, tempel Project URL 
 - Jalankan `member-chat-migration.sql` satu kali di Supabase SQL Editor setelah `staff_profiles` tersedia. File ini membuat tabel pesan, indeks, RLS policies, dan view kontak terbatas yang tidak mengekspos email.
 - RLS hanya mengizinkan pengguna terautentikasi membaca pesan yang mereka kirim atau terima dan mengirim pesan dengan `sender_id` akun login. Jangan menonaktifkan RLS.
 - Chat ini versi teks pribadi, belum mendukung grup, media, panggilan, indikator online, atau status pesan dibaca.
+
+## Chat publik komunitas
+- Dashboard `/member.html` kini memiliki ruang Chat Publik bersama selain chat pribadi. Semua akun yang sudah login dan memiliki profil `staff_profiles` dapat membaca serta mengirim pesan publik.
+- Jalankan `public-chat-migration.sql` satu kali di Supabase SQL Editor. Migrasi membuat tabel pesan publik, reply-to, reaksi, indeks, dan RLS policies tanpa menghapus tabel chat pribadi.
+- Ketuk gelembung pesan untuk membuka menu: reaction ❤️ 😂 👍 🔥 😮 😢, balas pesan, salin teks, dan hapus pesan milik sendiri. Role diambil dari profil resmi Supabase.
+- Pesan publik terlihat oleh semua pengguna terautentikasi; jangan kirim kata sandi, token, atau informasi sensitif di ruang publik. RLS tetap aktif. Chat memuat ulang otomatis tiap beberapa detik.

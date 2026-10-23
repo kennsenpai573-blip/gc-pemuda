@@ -39,6 +39,18 @@
       <article class="panel summary-card"><span class="summary-icon">✉</span><p class="muted">Email akun</p><strong id="summary-email">—</strong></article>
       <article class="panel summary-card"><span class="summary-icon">⌁</span><p class="muted">Bergabung sejak</p><strong id="summary-date">—</strong></article>
     </div>
+    <section id="public-chat-section" class="section member-section public-chat-section">
+      <div class="eyebrow">COMMUNITY LOUNGE</div><h2>Chat Publik</h2>
+      <p class="muted">Ngobrol bersama semua member, Admin, dan Owner. Ketuk gelembung pesan untuk reaction, balas, salin, atau hapus pesan milikmu.</p>
+      <div class="public-chat-panel panel">
+        <header class="public-chat-header"><div class="public-chat-icon">✦</div><div><strong>Ruang Publik Grup Pemuda</strong><small>Semua akun terdaftar dapat membaca dan mengirim pesan</small></div><span class="public-online-pill">PUBLIK</span></header>
+        <div id="public-chat-messages" class="public-chat-messages" aria-live="polite"><p class="muted">Memuat chat publik…</p></div>
+        <div id="public-reply-preview" class="public-reply-preview hidden"><div><small>Membalas pesan</small><strong id="public-reply-name"></strong><p id="public-reply-text"></p></div><button id="public-reply-cancel" type="button" aria-label="Batal membalas">×</button></div>
+        <form id="public-chat-form" class="public-chat-compose"><textarea id="public-chat-input" rows="1" maxlength="2000" placeholder="Tulis pesan untuk semua member…" aria-label="Tulis pesan publik" required></textarea><button class="btn primary chat-send" type="submit" aria-label="Kirim pesan publik">➤</button></form>
+        <p id="public-chat-status" class="status" aria-live="polite"></p>
+      </div>
+      <div id="public-message-menu" class="public-message-menu hidden" role="dialog" aria-label="Aksi pesan"><div class="public-reaction-row"><button type="button" data-reaction="❤️">❤️</button><button type="button" data-reaction="😂">😂</button><button type="button" data-reaction="👍">👍</button><button type="button" data-reaction="🔥">🔥</button><button type="button" data-reaction="😮">😮</button><button type="button" data-reaction="😢">😢</button></div><button type="button" data-action="reply">↩ Balas pesan</button><button type="button" data-action="copy">▢ Salin teks</button><button type="button" data-action="delete" class="hidden">⌫ Hapus pesan saya</button></div>
+    </section>
     <section id="chat-section" class="section member-section chat-section">
       <div class="eyebrow">PRIVATE MESSAGES</div><h2>Chat Member</h2>
       <p class="muted">Kirim pesan pribadi ke member lain. Nama dan role pengirim ditampilkan dari profil resmi.</p>
@@ -67,7 +79,8 @@
       <div class="member-shortcuts">
         <a class="panel shortcut-card" href="/#grup"><span class="shortcut-icon">⌕</span><h3>Jelajahi Grup</h3><p class="muted">Temukan komunitas WhatsApp sesuai minatmu.</p><span class="shortcut-arrow">Buka halaman ↗</span></a>
         <a class="panel shortcut-card" href="/#intro"><span class="shortcut-icon">✎</span><h3>Buat Intro</h3><p class="muted">Perkenalkan dirimu kepada komunitas.</p><span class="shortcut-arrow">Buat intro ↗</span></a>
-        <a class="panel shortcut-card" href="#chat-section"><span class="shortcut-icon">✉</span><h3>Chat Member</h3><p class="muted">Kirim pesan pribadi kepada member, Owner, atau Admin.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
+        <a class="panel shortcut-card" href="#public-chat-section"><span class="shortcut-icon">✦</span><h3>Chat Publik</h3><p class="muted">Ngobrol bersama seluruh komunitas.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
+        <a class="panel shortcut-card" href="#chat-section"><span class="shortcut-icon">✉</span><h3>Chat Pribadi</h3><p class="muted">Kirim pesan pribadi ke member, Owner, atau Admin.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
         <a class="panel shortcut-card" href="/members.html"><span class="shortcut-icon">♧</span><h3>Member Terdaftar</h3><p class="muted">Lihat nama member yang sudah bergabung.</p><span class="shortcut-arrow">Lihat daftar ↗</span></a>
         <a class="panel shortcut-card" href="/"><span class="shortcut-icon">⌂</span><h3>Website Utama</h3><p class="muted">Kembali ke halaman utama Grup Pemuda.</p><span class="shortcut-arrow">Kembali ↗</span></a>
       </div>
