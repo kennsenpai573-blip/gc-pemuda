@@ -39,6 +39,28 @@ function dateLabel(value) {
       });
 }
 
+const tierSymbols = {"Warrior":"♜","Elite":"♞","Master":"♟","Grand Master":"⬟","Epic":"⬢","Legend":"♛","Mythic":"✦","Mythical Honor":"✧","Mythical Glory":"✹","Mythical Immortal":"✺"};
+
+async function loadLeaderboard(myUserId) {
+  const list = $("#leaderboard-list");
+  if (!list || !db) return;
+  const { data, error } = await db.from("leaderboard_public").select("user_id,display_name,role,points,tier,avatar_url").order("points", { ascending: false }).limit(100);
+  if (error) {
+    list.innerHTML = '<p class="muted">Leaderboard belum aktif. Owner perlu menjalankan file leaderboard-migration.sql di Supabase SQL Editor.</p>';
+    say("#leaderboard-status", error.message);
+    return;
+  }
+  const rows = data || [];
+  const mine = rows.find(row => row.user_id === myUserId);
+  if (mine) {
+    $("#my-tier-name").textContent = mine.tier || "Warrior";
+    $("#my-tier-points").textContent = `${mine.points || 0} poin`;
+    $("#my-tier-shield").textContent = tierSymbols[mine.tier] || "♜";
+  }
+  if (!rows.length) { list.innerHTML = '<p class="muted">Belum ada data leaderboard.</p>'; return; }
+  list.innerHTML = rows.map((row, index) => `<article class="leaderboard-row ${row.user_id === myUserId ? 'is-me' : ''}"><span class="leaderboard-rank">${index < 3 ? ['🥇','🥈','🥉'][index] : index + 1}</span><span class="leaderboard-row-shield">${tierSymbols[row.tier] || '♜'}</span><div class="leaderboard-person"><strong>${safeText(row.display_name || 'Member')}</strong><small>${safeText(row.tier || 'Warrior')} · ${safeText(String(row.role || 'member').toUpperCase())}</small></div><strong class="leaderboard-score">${Number(row.points) || 0} <small>PTS</small></strong></article>`).join('');
+}
+
 function showLogin(message = "") {
   $("#login-panel")?.classList.remove("hidden");
   $("#dashboard")?.classList.add("hidden");
@@ -97,6 +119,7 @@ async function loadDashboard(user) {
   $("#summary-date").textContent = dateLabel(profile.created_at);
   $("#profile-role").textContent =
     String(profile.role || "member").toUpperCase();
+  await loadLeaderboard(user.id);
 
   if (["owner", "admin"].includes(profile.role)) {
     say(
