@@ -41,8 +41,8 @@
     </div>
     <section id="leaderboard-section" class="section member-section">
       <div class="eyebrow">COMMUNITY RANKING</div><h2>Leaderboard</h2>
-      <p class="muted">Setiap pesan yang berhasil dikirim ke chat publik memberi +5 poin. Chat pribadi tidak dihitung.</p>
-      <div class="panel leaderboard-panel"><div class="leaderboard-self"><span class="leaderboard-shield" id="my-tier-shield">♜</span><div><small>TIER KAMU</small><strong id="my-tier-name">Warrior</strong><span id="my-tier-points">0 poin</span></div></div><div id="leaderboard-list" class="leaderboard-list"><p class="muted">Memuat leaderboard…</p></div><p id="leaderboard-status" class="status" aria-live="polite"></p></div>
+      <p class="muted">Setiap pesan chat publik mengumpulkan 50 koin. Koin dibagikan ke total poin setiap hari pukul 15.00 WIB. Chat pribadi tidak dihitung.</p>
+      <div class="panel leaderboard-panel"><div class="leaderboard-self"><span class="leaderboard-shield" id="my-tier-shield">♜</span><div><small>TIER KAMU</small><strong id="my-tier-name">Warrior</strong><span id="my-tier-points">0 poin</span></div></div><div class="daily-coin-note">✦ Koin harian terkumpul dulu, lalu dikonversi menjadi poin leaderboard pukul <strong>15.00 WIB</strong>.</div><div id="leaderboard-list" class="leaderboard-list"><p class="muted">Memuat leaderboard…</p></div><p id="leaderboard-status" class="status" aria-live="polite"></p></div>
     </section>
     <section id="public-chat-section" class="section member-section public-chat-section">
       <div class="eyebrow">COMMUNITY LOUNGE</div><h2>Chat Publik</h2>
@@ -93,6 +93,7 @@
     <div class="member-actions"><p id="dashboard-status" class="status" aria-live="polite"></p><button id="logout" class="btn secondary" type="button">Keluar dari akun</button></div>
   </section>
 </main>
+<div id="public-profile-modal" class="public-profile-modal hidden" role="dialog" aria-modal="true" aria-label="Profil member"><div class="public-profile-card panel"><button type="button" id="public-profile-close" class="public-profile-close" aria-label="Tutup">×</button><div id="public-profile-avatar" class="public-profile-avatar">友</div><div class="eyebrow">PROFIL ANGGOTA</div><h2 id="public-profile-name">Member</h2><span id="public-profile-role" class="role-pill">MEMBER</span><div id="public-profile-tier" class="public-profile-tier">Warrior ♜</div><p id="public-profile-points" class="muted">0 poin total</p><button id="public-profile-chat" type="button" class="btn primary">Chat Pribadi</button></div></div>
 <footer class="footer"><div class="wrap footer-inner"><span>© <span id="year"></span> — Grup Pemuda`友</span><a href="/">Kembali ke website</a></div></footer>
 <script type="module" src="/member.js"></script>
 </body>

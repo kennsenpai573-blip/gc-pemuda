@@ -44,7 +44,7 @@ const tierSymbols = {"Warrior":"♜","Elite":"♞","Master":"♟","Grand Master"
 async function loadLeaderboard(myUserId) {
   const list = $("#leaderboard-list");
   if (!list || !db) return;
-  const { data, error } = await db.from("leaderboard_public").select("user_id,display_name,role,points,tier,avatar_url").order("points", { ascending: false }).limit(100);
+  const { data, error } = await db.from("leaderboard_public").select("user_id,display_name,role,points,tier,avatar_url,pending_coins,pending_messages").order("points", { ascending: false }).limit(100);
   if (error) {
     list.innerHTML = '<p class="muted">Leaderboard belum aktif. Owner perlu menjalankan file leaderboard-migration.sql di Supabase SQL Editor.</p>';
     say("#leaderboard-status", error.message);
@@ -54,11 +54,11 @@ async function loadLeaderboard(myUserId) {
   const mine = rows.find(row => row.user_id === myUserId);
   if (mine) {
     $("#my-tier-name").textContent = mine.tier || "Warrior";
-    $("#my-tier-points").textContent = `${mine.points || 0} poin`;
+    $("#my-tier-points").textContent = `${mine.points || 0} poin · ${mine.pending_coins || 0} koin menunggu`;
     $("#my-tier-shield").textContent = tierSymbols[mine.tier] || "♜";
   }
   if (!rows.length) { list.innerHTML = '<p class="muted">Belum ada data leaderboard.</p>'; return; }
-  list.innerHTML = rows.map((row, index) => `<article class="leaderboard-row ${row.user_id === myUserId ? 'is-me' : ''}"><span class="leaderboard-rank">${index < 3 ? ['🥇','🥈','🥉'][index] : index + 1}</span><span class="leaderboard-row-shield">${tierSymbols[row.tier] || '♜'}</span><div class="leaderboard-person"><strong>${safeText(row.display_name || 'Member')}</strong><small>${safeText(row.tier || 'Warrior')} · ${safeText(String(row.role || 'member').toUpperCase())}</small></div><strong class="leaderboard-score">${Number(row.points) || 0} <small>PTS</small></strong></article>`).join('');
+  list.innerHTML = rows.map((row, index) => `<button type="button" class="leaderboard-row profile-open ${row.user_id === myUserId ? 'is-me' : ''}" data-profile-id="${row.user_id}"><span class="leaderboard-rank">${index < 3 ? ['🥇','🥈','🥉'][index] : index + 1}</span><span class="leaderboard-row-shield">${tierSymbols[row.tier] || '♜'}</span><div class="leaderboard-person"><strong>${safeText(row.display_name || 'Member')}</strong><small>${safeText(row.tier || 'Warrior')} · ${safeText(String(row.role || 'member').toUpperCase())}</small></div><strong class="leaderboard-score">${Number(row.points) || 0} <small>PTS</small></strong></button>`).join('');
 }
 
 function showLogin(message = "") {
@@ -1008,7 +1008,34 @@ $("#public-chat-form")?.addEventListener("submit", async event => {
   setPublicReply(null);
   say("#public-chat-status", "");
   await loadPublicChat();
+  // Refresh points/tier immediately after a successful public message.
+  // The actual +5 award is performed by the Supabase database trigger.
+  await loadLeaderboard(currentUser.id);
 });
+
+// Profil publik: dapat dibuka dengan mengetuk baris leaderboard.
+document.addEventListener("click", async event => {
+  const trigger = event.target.closest("[data-profile-id]");
+  if (!trigger || !db || !currentUser) return;
+  const modal = $("#public-profile-modal");
+  const uid = trigger.dataset.profileId;
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  say("#public-profile-name", "Memuat profil…");
+  say("#public-profile-role", ""); say("#public-profile-tier", ""); say("#public-profile-points", "");
+  const photo = $("#public-profile-avatar"); if (photo) { photo.style.backgroundImage = ""; photo.textContent = "友"; }
+  const {data, error} = await db.from("leaderboard_public").select("user_id,display_name,role,points,tier,avatar_url,pending_coins,pending_messages").eq("user_id", uid).maybeSingle();
+  if (error || !data) { say("#public-profile-name", "Profil tidak dapat dimuat"); return; }
+  say("#public-profile-name", data.display_name || "Member");
+  say("#public-profile-role", String(data.role || "member").toUpperCase());
+  say("#public-profile-tier", `${data.tier || "Warrior"} ${tierSymbols[data.tier] || "♜"}`);
+  say("#public-profile-points", `${Number(data.points)||0} poin total · ${Number(data.pending_coins)||0} koin menunggu pembagian`);
+  if (photo) { photo.textContent = data.avatar_url ? "" : "友"; photo.style.backgroundImage = data.avatar_url ? `url("${data.avatar_url}")` : ""; }
+  const chatButton = $("#public-profile-chat");
+  if (chatButton) { chatButton.classList.toggle("hidden", uid === currentUser.id); chatButton.onclick = () => { modal.classList.add("hidden"); const target = chatProfiles.find(p => p.user_id === uid); if (target) { selectedChatUser = target; document.querySelector("#chat-section")?.scrollIntoView({behavior:"smooth"}); initializeChat(currentUser); } else { location.href = `/member.html?chat=${encodeURIComponent(uid)}#chat-section`; } }; }
+});
+$("#public-profile-close")?.addEventListener("click", () => $("#public-profile-modal")?.classList.add("hidden"));
+$("#public-profile-modal")?.addEventListener("click", e => { if (e.target.id === "public-profile-modal") e.currentTarget.classList.add("hidden"); });
 
 $("#logout")?.addEventListener("click", async () => {
   if (!db) return;
