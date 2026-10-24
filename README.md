@@ -77,6 +77,6 @@ Setelah deploy, buka Supabase → SQL Editor lalu jalankan seluruh isi `backgrou
 - Media menggunakan URL publik supaya background dan avatar dapat ditampilkan pada halaman publik. Jangan unggah foto pribadi/sensitif.
 
 
-## Mengatur foto background dari dashboard Owner
+## Perbaikan foto profil member di halaman publik
 
-Di `/admin.html`, login sebagai Owner lalu buka tab **Background**. Pilih bagian **Foto Background Utama — Temukan komunitasmu**, **Foto Background Jelajahi Grup**, **Foto Background Kenalan Dulu, Yuk**, atau **Foto Background Aturan Komunitas**. Pilih foto/video dari HP lalu tekan **Unggah & Terapkan ke Bagian Ini**. Pengaturan disimpan di `site_settings` dan file media di bucket `community-media`. Pastikan policy terbaru dari `background-profile-migration.sql` sudah diterapkan di Supabase SQL Editor. Setelah mengunggah, muat ulang website.
+Halaman `members.html` menampilkan foto profil dari kolom `staff_profiles.avatar_url`. Setelah mengunggah ZIP pembaruan ini ke repository, jalankan ulang bagian pembuatan view `public_member_directory` dari `member-registration-migration.sql` di Supabase SQL Editor agar view mengikutsertakan `avatar_url`. View hanya memublikasikan nama tampilan, tanggal bergabung, dan URL foto profil; email serta UUID tidak diekspos. Lalu lakukan redeploy Vercel dan muat ulang halaman Member Terdaftar.

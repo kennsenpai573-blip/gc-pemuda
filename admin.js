@@ -293,28 +293,19 @@ $("#group-form").addEventListener("submit", async e => {
 
 
 const bgFile = () => $("#background-file")?.files?.[0];
-const backgroundLabels = {
-  home_background: "Foto Background Utama",
-  groups_background: "Foto Background Jelajahi Grup",
-  intro_background: "Foto Background Kenalan Dulu, Yuk",
-  rules_background: "Foto Background Aturan Komunitas"
-};
 $("#background-file")?.addEventListener("change", () => {
   const file = bgFile(); const preview = $("#background-preview"); if (!preview) return;
-  if (!file) { loadBackgroundSetting(); return; }
+  if (!file) { preview.textContent = "Belum ada pratinjau."; return; }
   if (file.size > 50 * 1024 * 1024) { preview.textContent = "File terlalu besar. Maksimal 50 MB."; return; }
   const url = URL.createObjectURL(file);
   preview.innerHTML = file.type.startsWith("video/") ? `<video controls playsinline src="${url}"></video>` : `<img alt="Pratinjau background" src="${url}">`;
 });
-$("#background-target")?.addEventListener("change", loadBackgroundSetting);
 async function loadBackgroundSetting() {
   if (!db) return;
-  const key = $("#background-target")?.value || "home_background";
-  const { data, error } = await db.from("site_settings").select("value").eq("key", key).maybeSingle();
-  if (error) { msg("#background-status", "Jalankan pembaruan background-profile-migration.sql di Supabase terlebih dahulu."); return; }
+  const { data, error } = await db.from("site_settings").select("value").eq("key", "home_background").maybeSingle();
+  if (error) { msg("#background-status", "Jalankan migration background-profile-migration.sql di Supabase terlebih dahulu."); return; }
   const value = data?.value;
   if (value?.url) renderBackgroundPreview(value.url, value.type);
-  else { const preview = $("#background-preview"); if (preview) preview.textContent = `${backgroundLabels[key] || "Background"} masih menggunakan desain bawaan.`; }
 }
 function renderBackgroundPreview(url, type) {
   const preview = $("#background-preview"); if (!preview) return;
@@ -323,30 +314,27 @@ function renderBackgroundPreview(url, type) {
 $("#background-form")?.addEventListener("submit", async e => {
   e.preventDefault();
   if (role !== "owner") { msg("#background-status", "Hanya Owner yang dapat mengganti background."); return; }
-  const file = bgFile(); if (!file) { msg("#background-status", "Pilih foto atau video terlebih dahulu."); return; }
+  const file = bgFile(); if (!file) return;
   if (file.size > 50 * 1024 * 1024) { msg("#background-status", "Ukuran file maksimal 50 MB."); return; }
   if (!(file.type.startsWith("image/") || ["video/mp4", "video/webm", "video/ogg"].includes(file.type))) { msg("#background-status", "Format didukung: foto umum atau video MP4, WebM, OGG."); return; }
   msg("#background-status", "Mengunggah media…");
   const { data: { user } } = await db.auth.getUser();
-  const key = $("#background-target").value;
   const ext = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const path = `background/${user.id}/${key}-${Date.now()}.${ext}`;
+  const path = `background/${user.id}/${Date.now()}.${ext}`;
   const { error: uploadError } = await db.storage.from("community-media").upload(path, file, { upsert: true, contentType: file.type });
   if (uploadError) { msg("#background-status", "Upload gagal: " + uploadError.message + ". Pastikan bucket dan policy Storage sudah dibuat."); return; }
   const { data: publicData } = db.storage.from("community-media").getPublicUrl(path);
   const type = $("#background-type").value === "auto" ? (file.type.startsWith("video/") ? "video" : "image") : $("#background-type").value;
-  const { error } = await db.from("site_settings").upsert({ key, value: { url: publicData.publicUrl, type } }, { onConflict: "key" });
+  const { error } = await db.from("site_settings").upsert({ key: "home_background", value: { url: publicData.publicUrl, type } }, { onConflict: "key" });
   if (error) { msg("#background-status", "Media terunggah, tetapi pengaturan gagal disimpan: " + error.message); return; }
   renderBackgroundPreview(publicData.publicUrl, type);
-  msg("#background-status", `${backgroundLabels[key]} berhasil diterapkan. Muat ulang website utama untuk melihat hasilnya.`);
+  msg("#background-status", "Background berhasil diterapkan. Muat ulang website utama untuk melihat hasilnya.");
 });
 $("#background-reset")?.addEventListener("click", async () => {
   if (role !== "owner") return;
-  const key = $("#background-target").value;
-  if (!confirm(`Kembalikan ${backgroundLabels[key]} ke desain bawaan?`)) return;
-  const { error } = await db.from("site_settings").delete().eq("key", key);
-  msg("#background-status", error ? "Gagal menghapus: " + error.message : `${backgroundLabels[key]} dikembalikan ke desain bawaan.`);
-  if (!error) loadBackgroundSetting();
+  const { error } = await db.from("site_settings").delete().eq("key", "home_background");
+  msg("#background-status", error ? "Gagal menghapus: " + error.message : "Background khusus dihapus. Website kembali ke background bawaan.");
+  if (!error) $("#background-preview").textContent = "Belum ada background khusus.";
 });
 
 if (!configured) {

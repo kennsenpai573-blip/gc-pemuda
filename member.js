@@ -246,7 +246,7 @@ async function initializeChat(user) {
 
   const { data, error } = await db
     .from("chat_member_directory")
-    .select("user_id,display_name,role")
+    .select("user_id,display_name,role,avatar_url,created_at")
     .order("display_name", { ascending: true });
 
   if (error) {
@@ -303,7 +303,13 @@ function renderChatContacts() {
 
     const avatar = document.createElement("span");
     avatar.className = "chat-contact-avatar";
-    avatar.textContent = initials(profile.display_name);
+    if (profile.avatar_url) {
+      const img = document.createElement("img");
+      img.src = profile.avatar_url;
+      img.alt = "";
+      img.loading = "lazy";
+      avatar.append(img);
+    } else { avatar.textContent = initials(profile.display_name); }
 
     const copy = document.createElement("span");
     copy.className = "chat-contact-copy";
@@ -531,7 +537,7 @@ async function initializePublicChat(user) {
 
   const { data: profiles, error: profileError } = await db
     .from("chat_member_directory")
-    .select("user_id,display_name,role")
+    .select("user_id,display_name,role,avatar_url,created_at")
     .order("display_name", { ascending: true });
 
   if (profileError) {
@@ -650,9 +656,20 @@ async function loadPublicChat(quiet = false) {
       "Aksi pesan dari " + profile.display_name
     );
 
+    const authorRow = document.createElement("div");
+    authorRow.className = "public-message-author-row";
+    if (profile.avatar_url) {
+      const avatar = document.createElement("img");
+      avatar.className = "public-message-avatar";
+      avatar.src = profile.avatar_url;
+      avatar.alt = "";
+      avatar.loading = "lazy";
+      authorRow.append(avatar);
+    }
     const name = document.createElement("span");
     name.className = "public-message-author";
     name.textContent = profile.display_name || "Member";
+    authorRow.append(name);
 
     const role = document.createElement("span");
     role.className = "public-message-role";
@@ -689,7 +706,7 @@ async function loadPublicChat(quiet = false) {
     time.textContent = timeLabel(message.created_at);
     time.dateTime = message.created_at;
 
-    article.append(name, role, body, time);
+    article.append(authorRow, role, body, time);
 
     const msgReactions = reactions.filter(
       r => r.message_id === message.id

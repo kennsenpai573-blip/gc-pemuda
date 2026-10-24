@@ -28,26 +28,28 @@ $("#intro-form").addEventListener("submit",async e=>{
  status.textContent=error?"Intro belum terkirim. Coba lagi nanti.":"Intro terkirim untuk ditinjau Owner. Terima kasih!";
  if(!error)e.currentTarget.reset();
 });
+
+async function loadHomeMembers(){
+ const box=$("#home-members"); if(!box)return;
+ if(!client){box.innerHTML='<div class="empty">Hubungkan Supabase untuk menampilkan member.</div>';return;}
+ const {data,error}=await client.from("public_member_directory").select("display_name,created_at,avatar_url").order("created_at",{ascending:false}).limit(6);
+ if(error){box.innerHTML='<div class="empty">Daftar member belum bisa dimuat. Pastikan member-visibility-migration.sql sudah dijalankan di Supabase.</div>';return;}
+ const list=data||[];
+ box.innerHTML=list.length?list.map(m=>`<article class="group-card home-member-card"><div class="public-member-avatar">${m.avatar_url?`<img src="${escapeHtml(m.avatar_url)}" alt="Foto profil ${escapeHtml(m.display_name||"Member")}" loading="lazy" referrerpolicy="no-referrer">`:"友"}</div><h3>${escapeHtml(m.display_name||"Member")}</h3><p class="muted">Member komunitas</p><p class="muted">Bergabung ${m.created_at?new Date(m.created_at).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}):"—"}</p></article>`).join(""):'<div class="empty">Belum ada member yang disetujui. Jadilah member pertama!</div>';
+}
+
 async function loadHomeBackground(){
  if(!client)return;
- const {data,error}=await client.from("site_settings").select("key,value").in("key",["home_background","groups_background","intro_background","rules_background"]);
- if(error||!data?.length)return;
- const targets={home_background:document.querySelector("#home-hero"),groups_background:document.querySelector("#grup"),intro_background:document.querySelector("#intro"),rules_background:document.querySelector("#aturan")};
- for(const setting of data){
-  const section=targets[setting.key],value=setting.value;
-  if(!section||!value?.url)continue;
-  section.classList.add("section-custom-background");
-  if(setting.key==="home_background"){
-   section.classList.add("hero-custom-background");
-   if(value.type==="video"){const video=document.createElement("video");video.className="hero-background-media";video.src=value.url;video.autoplay=true;video.muted=true;video.loop=true;video.playsInline=true;video.setAttribute("aria-hidden","true");section.prepend(video);}
-   else section.style.setProperty("--hero-background-image",`url("${String(value.url).replace(/["\\]/g,"")}")`);
-  }else if(value.type==="video"){
-   const video=document.createElement("video");video.className="section-background-media";video.src=value.url;video.autoplay=true;video.muted=true;video.loop=true;video.playsInline=true;video.setAttribute("aria-hidden","true");section.prepend(video);
-  }else section.style.setProperty("--section-background-image",`url("${String(value.url).replace(/["\\]/g,"")}")`);
- }
+ const {data,error}=await client.from("site_settings").select("value").eq("key","home_background").maybeSingle();
+ if(error||!data?.value?.url)return;
+ const hero=document.querySelector("#home-hero"); if(!hero)return;
+ const value=data.value; hero.classList.add("hero-custom-background");
+ if(value.type==="video") { const video=document.createElement("video"); video.className="hero-background-media"; video.src=value.url; video.autoplay=true; video.muted=true; video.loop=true; video.playsInline=true; video.setAttribute("aria-hidden","true"); hero.prepend(video); }
+ else { hero.style.setProperty("--hero-background-image", `url("${String(value.url).replace(/["\\]/g, "")}")`); }
 }
 loadHomeBackground();
 loadGroups();
+loadHomeMembers();
 // Statistik sederhana: hanya mencatat kunjungan, bukan identitas pengunjung.
 if(client && !sessionStorage.getItem("gp_visit_recorded")){
  client.from("site_visits").insert({path:location.pathname}).then(()=>sessionStorage.setItem("gp_visit_recorded","1"));

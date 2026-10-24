@@ -52,3 +52,7 @@ Setelah mengisi config dan deploy:
 6. Member berstatus `pending` atau `rejected` tidak dapat membuka Dashboard Member. Setelah disetujui, member dapat login (dan tetap harus mengonfirmasi email jika fitur konfirmasi email Supabase aktif).
 
 Catatan: notifikasi pendaftaran tampil di dashboard Owner saat dashboard dimuat/di-refresh; ini bukan push notification ke luar browser. Jangan pernah menaruh `service_role` key di kode frontend.
+
+## Membuka direktori member untuk semua member
+
+Jika member biasa tidak bisa melihat member lain, jalankan `member-visibility-migration.sql` satu kali di **Supabase → SQL Editor → New query → Run**. Migrasi ini membuat direktori publik berisi nama, foto profil, dan tanggal bergabung (tanpa email/UUID), serta direktori chat untuk semua member yang sudah disetujui. Setelah itu deploy ulang project ke Vercel. Halaman utama akan menampilkan hingga enam member terbaru; halaman **Member Terdaftar** menampilkan daftar lengkap.

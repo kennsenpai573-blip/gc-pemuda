@@ -28,7 +28,7 @@ for each row execute function public.handle_new_member_signup();
 
 -- Public directory view exposes ONLY display name and join date, never email or UUID.
 create or replace view public.public_member_directory as
-select display_name, created_at
+select display_name, created_at, avatar_url
 from public.staff_profiles
 where role = 'member';
 

@@ -10,11 +10,17 @@
 /* Custom homepage media background and profile image */
 .hero-custom-background{position:relative;isolation:isolate;overflow:hidden;border-radius:0 0 22px 22px;background-image:linear-gradient(90deg,rgba(11,9,18,.92),rgba(11,9,18,.68)),var(--hero-background-image);background-size:cover;background-position:center}.hero-background-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.48}.hero-custom-background:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,9,18,.92),rgba(11,9,18,.62));z-index:1;pointer-events:none}.hero-custom-background>*:not(.hero-background-media){position:relative;z-index:2}.media-preview{min-height:80px;border:1px dashed var(--line);border-radius:10px;padding:10px;overflow:hidden}.media-preview img,.media-preview video{display:block;width:100%;max-height:300px;object-fit:contain;border-radius:8px}.profile-edit-panel{margin-top:18px}.member-avatar.has-photo{background-size:cover;background-position:center;background-repeat:no-repeat;border:1px solid #a78bfa}
 
-/* Owner-managed image backgrounds for the public homepage sections */
-.hero-custom-background{background-image:linear-gradient(90deg,rgba(11,9,18,.48),rgba(11,9,18,.28)),var(--hero-background-image);background-size:cover;background-position:center;position:relative;isolation:isolate;overflow:hidden;border-radius:0 0 22px 22px}
-.hero-custom-background:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,9,18,.38),rgba(11,9,18,.18));z-index:1;pointer-events:none}
-.hero-background-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.82}
-.hero-custom-background>*:not(.hero-background-media){position:relative;z-index:2}
-.section-custom-background{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;margin-top:24px;margin-bottom:24px;background-image:linear-gradient(135deg,rgba(11,9,18,.58),rgba(11,9,18,.42)),var(--section-background-image);background-size:cover;background-position:center;background-repeat:no-repeat;padding-left:clamp(18px,4vw,36px);padding-right:clamp(18px,4vw,36px)}
-.section-background-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.78;pointer-events:none}
-.section-custom-background>*:not(.section-background-media){position:relative;z-index:1}
+/* Public member directory profile photos */
+.public-member-avatar {
+  width: 76px; height: 76px; border-radius: 50%;
+  display: grid; place-items: center; overflow: hidden;
+  margin: 0 auto 14px; color: #d9c4ff; font-size: 28px;
+  background: linear-gradient(135deg, #26183d, #4c2a78);
+  border: 1px solid rgba(185, 145, 255, .45);
+}
+.public-member-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.member-public-card { text-align: center; }
+
+/* Public member directory on homepage and visible profile avatars in chats */
+.home-member-card{align-items:center;text-align:center;min-height:210px}.home-member-card h3{margin-top:2px}.home-member-card p{margin:3px 0}.chat-contact-avatar{overflow:hidden}.chat-contact-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}.public-message-author-row{display:flex;align-items:center;gap:7px;margin-bottom:3px}.public-message-author-row .public-message-author{display:inline}.public-message-avatar{width:25px;height:25px;border-radius:50%;object-fit:cover;border:1px solid #8060bd;flex:0 0 25px}.public-message-role{margin-top:0}
+@media(max-width:700px){#member-community .section-heading{align-items:flex-start;flex-direction:column}.home-member-card{min-height:190px}}
