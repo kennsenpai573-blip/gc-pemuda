@@ -38,16 +38,29 @@ async function loadHomeMembers(){
  box.innerHTML=list.length?list.map(m=>`<article class="group-card home-member-card"><div class="public-member-avatar">${m.avatar_url?`<img src="${escapeHtml(m.avatar_url)}" alt="Foto profil ${escapeHtml(m.display_name||"Member")}" loading="lazy" referrerpolicy="no-referrer">`:"友"}</div><h3>${escapeHtml(m.display_name||"Member")}</h3><p class="muted">Member komunitas</p><p class="muted">Bergabung ${m.created_at?new Date(m.created_at).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}):"—"}</p></article>`).join(""):'<div class="empty">Belum ada member yang disetujui. Jadilah member pertama!</div>';
 }
 
-async function loadHomeBackground(){
+async function loadSectionBackgrounds(){
  if(!client)return;
- const {data,error}=await client.from("site_settings").select("value").eq("key","home_background").maybeSingle();
- if(error||!data?.value?.url)return;
- const hero=document.querySelector("#home-hero"); if(!hero)return;
- const value=data.value; hero.classList.add("hero-custom-background");
- if(value.type==="video") { const video=document.createElement("video"); video.className="hero-background-media"; video.src=value.url; video.autoplay=true; video.muted=true; video.loop=true; video.playsInline=true; video.setAttribute("aria-hidden","true"); hero.prepend(video); }
- else { hero.style.setProperty("--hero-background-image", `url("${String(value.url).replace(/["\\]/g, "")}")`); }
+ const targets={
+  home_background:"#home-hero",
+  groups_background:"#grup",
+  members_background:"#member-community",
+  intro_background:"#intro",
+  rules_background:"#aturan"
+ };
+ for(const [key,selector] of Object.entries(targets)){
+  const target=document.querySelector(selector); if(!target)continue;
+  const {data,error}=await client.from("site_settings").select("value").eq("key",key).maybeSingle();
+  if(error||!data?.value?.url)continue;
+  const value=data.value;
+  target.classList.add("section-custom-background");
+  if(value.type==="video"){
+   const video=document.createElement("video"); video.className="section-background-media"; video.src=value.url; video.autoplay=true; video.muted=true; video.loop=true; video.playsInline=true; video.setAttribute("aria-hidden","true"); target.prepend(video);
+  }else{
+   target.style.setProperty("--section-background-image",`url("${String(value.url).replace(/["\\]/g,"")}")`);
+  }
+ }
 }
-loadHomeBackground();
+loadSectionBackgrounds();
 loadGroups();
 loadHomeMembers();
 // Statistik sederhana: hanya mencatat kunjungan, bukan identitas pengunjung.

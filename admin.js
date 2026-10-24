@@ -82,7 +82,7 @@ async function refresh() {
   $("#dashboard").classList.remove("hidden");
   $("#role-badge").textContent = role.toUpperCase();
   all(".owner-only").forEach(e => e.classList.toggle("hidden", role !== "owner"));
-  if (role === "owner") loadBackgroundSetting();
+  if (role === "owner") loadBackgroundSettings();
 
   const { data: members, error: membersError } = await db
     .from("staff_profiles")
@@ -292,49 +292,61 @@ $("#group-form").addEventListener("submit", async e => {
 });
 
 
-const bgFile = () => $("#background-file")?.files?.[0];
-$("#background-file")?.addEventListener("change", () => {
-  const file = bgFile(); const preview = $("#background-preview"); if (!preview) return;
-  if (!file) { preview.textContent = "Belum ada pratinjau."; return; }
-  if (file.size > 50 * 1024 * 1024) { preview.textContent = "File terlalu besar. Maksimal 50 MB."; return; }
-  const url = URL.createObjectURL(file);
-  preview.innerHTML = file.type.startsWith("video/") ? `<video controls playsinline src="${url}"></video>` : `<img alt="Pratinjau background" src="${url}">`;
-});
-async function loadBackgroundSetting() {
+const backgroundForms = all(".background-form");
+function mediaType(file, selected) { return selected === "auto" ? (file.type.startsWith("video/") ? "video" : "image") : selected; }
+function renderBackgroundPreview(preview, url, type) {
+  if (!preview) return;
+  preview.innerHTML = type === "video" ? `<video controls playsinline src="${url}"></video>` : `<img alt="Pratinjau background saat ini" src="${url}">`;
+}
+async function loadBackgroundSettings() {
   if (!db) return;
-  const { data, error } = await db.from("site_settings").select("value").eq("key", "home_background").maybeSingle();
-  if (error) { msg("#background-status", "Jalankan migration background-profile-migration.sql di Supabase terlebih dahulu."); return; }
-  const value = data?.value;
-  if (value?.url) renderBackgroundPreview(value.url, value.type);
+  for (const form of backgroundForms) {
+    const key = form.dataset.backgroundKey;
+    const preview = form.querySelector(".background-preview");
+    const status = form.querySelector(".background-status");
+    const { data, error } = await db.from("site_settings").select("value").eq("key", key).maybeSingle();
+    if (error) { if (status) status.textContent = "Gagal memuat pengaturan: " + error.message; continue; }
+    if (data?.value?.url) renderBackgroundPreview(preview, data.value.url, data.value.type);
+    else if (preview) preview.textContent = "Belum ada background khusus.";
+  }
 }
-function renderBackgroundPreview(url, type) {
-  const preview = $("#background-preview"); if (!preview) return;
-  preview.innerHTML = type === "video" ? `<video controls playsinline src="${url}"></video>` : `<img alt="Background saat ini" src="${url}">`;
-}
-$("#background-form")?.addEventListener("submit", async e => {
-  e.preventDefault();
-  if (role !== "owner") { msg("#background-status", "Hanya Owner yang dapat mengganti background."); return; }
-  const file = bgFile(); if (!file) return;
-  if (file.size > 50 * 1024 * 1024) { msg("#background-status", "Ukuran file maksimal 50 MB."); return; }
-  if (!(file.type.startsWith("image/") || ["video/mp4", "video/webm", "video/ogg"].includes(file.type))) { msg("#background-status", "Format didukung: foto umum atau video MP4, WebM, OGG."); return; }
-  msg("#background-status", "Mengunggah media…");
-  const { data: { user } } = await db.auth.getUser();
-  const ext = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const path = `background/${user.id}/${Date.now()}.${ext}`;
-  const { error: uploadError } = await db.storage.from("community-media").upload(path, file, { upsert: true, contentType: file.type });
-  if (uploadError) { msg("#background-status", "Upload gagal: " + uploadError.message + ". Pastikan bucket dan policy Storage sudah dibuat."); return; }
-  const { data: publicData } = db.storage.from("community-media").getPublicUrl(path);
-  const type = $("#background-type").value === "auto" ? (file.type.startsWith("video/") ? "video" : "image") : $("#background-type").value;
-  const { error } = await db.from("site_settings").upsert({ key: "home_background", value: { url: publicData.publicUrl, type } }, { onConflict: "key" });
-  if (error) { msg("#background-status", "Media terunggah, tetapi pengaturan gagal disimpan: " + error.message); return; }
-  renderBackgroundPreview(publicData.publicUrl, type);
-  msg("#background-status", "Background berhasil diterapkan. Muat ulang website utama untuk melihat hasilnya.");
-});
-$("#background-reset")?.addEventListener("click", async () => {
-  if (role !== "owner") return;
-  const { error } = await db.from("site_settings").delete().eq("key", "home_background");
-  msg("#background-status", error ? "Gagal menghapus: " + error.message : "Background khusus dihapus. Website kembali ke background bawaan.");
-  if (!error) $("#background-preview").textContent = "Belum ada background khusus.";
+backgroundForms.forEach(form => {
+  const fileInput = form.querySelector(".background-file");
+  const preview = form.querySelector(".background-preview");
+  const status = form.querySelector(".background-status");
+  fileInput?.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    if (!file) { preview.textContent = "Belum ada pratinjau."; return; }
+    if (file.size > 50 * 1024 * 1024) { preview.textContent = "File terlalu besar. Maksimal 50 MB."; return; }
+    const url = URL.createObjectURL(file);
+    renderBackgroundPreview(preview, url, mediaType(file, form.querySelector(".background-type").value));
+  });
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (role !== "owner") { status.textContent = "Hanya Owner yang dapat mengganti background."; return; }
+    const file = fileInput?.files?.[0]; if (!file) { status.textContent = "Pilih foto atau video terlebih dahulu."; return; }
+    if (file.size > 50 * 1024 * 1024) { status.textContent = "Ukuran file maksimal 50 MB."; return; }
+    if (!(file.type.startsWith("image/") || ["video/mp4", "video/webm", "video/ogg"].includes(file.type))) { status.textContent = "Format didukung: foto umum atau video MP4, WebM, OGG."; return; }
+    status.textContent = "Mengunggah media…";
+    const { data: { user } } = await db.auth.getUser();
+    const ext = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const path = `background/${user.id}/${form.dataset.backgroundKey}/${Date.now()}.${ext}`;
+    const { error: uploadError } = await db.storage.from("community-media").upload(path, file, { upsert: true, contentType: file.type });
+    if (uploadError) { status.textContent = "Upload gagal: " + uploadError.message + ". Pastikan bucket dan policy Storage sudah dibuat."; return; }
+    const { data: publicData } = db.storage.from("community-media").getPublicUrl(path);
+    const type = mediaType(file, form.querySelector(".background-type").value);
+    const { error } = await db.from("site_settings").upsert({ key: form.dataset.backgroundKey, value: { url: publicData.publicUrl, type } }, { onConflict: "key" });
+    if (error) { status.textContent = "Media terunggah, tetapi pengaturan gagal disimpan: " + error.message; return; }
+    renderBackgroundPreview(preview, publicData.publicUrl, type);
+    status.textContent = `${form.dataset.backgroundLabel} berhasil diterapkan. Muat ulang website untuk melihat hasilnya.`;
+    fileInput.value = "";
+  });
+  form.querySelector(".background-reset")?.addEventListener("click", async () => {
+    if (role !== "owner") { status.textContent = "Hanya Owner yang dapat menghapus background."; return; }
+    const { error } = await db.from("site_settings").delete().eq("key", form.dataset.backgroundKey);
+    status.textContent = error ? "Gagal menghapus: " + error.message : `${form.dataset.backgroundLabel} khusus dihapus. Website kembali ke background bawaan.`;
+    if (!error) preview.textContent = "Belum ada background khusus.";
+  });
 });
 
 if (!configured) {
