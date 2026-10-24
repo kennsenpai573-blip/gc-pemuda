@@ -1,4 +1,4 @@
--- Grup Pemuda: koin harian chat publik, dibagikan pukul 15.00 WIB.
+-- Grup Pemuda: data tier dan leaderboard. Poin tidak lagi diberikan melalui chat publik.
 -- Jalankan sekali di Supabase SQL Editor. Tidak menghapus data lama.
 
 alter table public.staff_profiles
@@ -39,19 +39,7 @@ begin new.points:=greatest(coalesce(new.points,0),0); new.tier:=public.leaderboa
 drop trigger if exists staff_profiles_sync_tier on public.staff_profiles;
 create trigger staff_profiles_sync_tier before insert or update of points on public.staff_profiles for each row execute function public.sync_staff_tier();
 
--- Pesan publik menambah penampungan koin, bukan total leaderboard secara langsung.
-create or replace function public.collect_daily_chat_coins()
-returns trigger language plpgsql security definer set search_path=public as $$
-begin
-  insert into public.daily_chat_coins(user_id,pending_coins,pending_messages,updated_at)
-  values(new.sender_id,50,1,now())
-  on conflict(user_id) do update set pending_coins=public.daily_chat_coins.pending_coins+50,
-    pending_messages=public.daily_chat_coins.pending_messages+1, updated_at=now();
-  return new;
-end; $$;
-drop trigger if exists public_chat_collect_daily_coins on public.public_chat_messages;
-create trigger public_chat_collect_daily_coins after insert on public.public_chat_messages for each row execute function public.collect_daily_chat_coins();
-
+-- Tabel koin tertunda dipertahankan agar data lama tetap aman; tidak ada trigger chat publik baru.
 -- Aman dipanggil ulang: unique(user_id,payout_date) mencegah pembayaran ganda.
 -- Mengambil koin yang sudah terkumpul lalu mengosongkan penampungan.
 create or replace function public.distribute_daily_chat_coins()
