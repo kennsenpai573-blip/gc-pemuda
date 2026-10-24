@@ -108,3 +108,42 @@
 .section-custom-background .btn.secondary{background:rgba(8,6,14,.76)!important;border-color:rgba(226,207,255,.68)!important;color:#fff!important;backdrop-filter:blur(8px);text-shadow:0 1px 5px #000}
 .section-custom-background .btn.primary{background:linear-gradient(110deg,#9a54ff,#6330cf)!important;box-shadow:0 0 24px rgba(151,83,255,.5),0 5px 20px #0008!important}
 @media(max-width:700px){.section-custom-background .section-background-media{filter:brightness(.70) saturate(.88) contrast(1.04)!important}.section-custom-background:before{background:linear-gradient(180deg,rgba(4,3,9,.38),rgba(8,5,15,.28) 42%,rgba(3,6,13,.42))!important}.section-custom-background .hero>p{font-size:15px;line-height:1.7}}
+
+
+/* === RGB LUXURY V4: visible multicolor edge lighting across public + owner/admin/member UI === */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--bg:#0b0912;--panel:#15111e;--panel2:#1c1628;--line:#40304f;--text:#fbf8ff;--muted:#c0b6ce;--purple:#ad83ff;--purple2:#7547e8}
+body{font-family:'Outfit','DM Sans',sans-serif; background:radial-gradient(ellipse at 72% 0%,rgba(103,48,170,.16),transparent 38%),radial-gradient(ellipse at 8% 55%,rgba(25,116,150,.07),transparent 34%),var(--bg)}
+h1,h2,h3,h4,.brand,.group-card h3,.panel h3,.admin-panel h2{font-family:'Space Grotesk','Outfit',sans-serif;letter-spacing:-.025em}
+/* Image/video: only a gentle veil; keep artwork visibly bright and recognizable */
+.section-custom-background .section-background-media{filter:brightness(.88) saturate(.96) contrast(1.02)!important;opacity:1!important}
+.section-custom-background:before{background:linear-gradient(115deg,rgba(4,3,9,.18),rgba(8,5,15,.12) 48%,rgba(3,6,13,.20))!important}
+@media(max-width:700px){.section-custom-background .section-background-media{filter:brightness(.85) saturate(.94) contrast(1.02)!important}.section-custom-background:before{background:linear-gradient(180deg,rgba(4,3,9,.22),rgba(8,5,15,.13) 42%,rgba(3,6,13,.24))!important}}
+/* Catalog cards, member cards, admin panels, dashboard widgets: unmistakable RGB rim */
+.group-card,.panel,.admin-panel,.admin-item,.home-member-card,.leaderboard-panel,.leaderboard-self,.leaderboard-row,.public-profile-card,.member-community .home-member-card,.background-settings-grid>*,.card,.stat,.stat-box,.dashboard-card,.member-card,.intro-card,.catalog-card{
+ position:relative;isolation:isolate;border-color:rgba(153,111,220,.62)!important;
+ box-shadow:0 0 0 1px rgba(145,91,255,.12),0 0 13px rgba(153,74,255,.19),inset 0 0 17px rgba(125,74,255,.035);
+ transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,filter .22s ease;
+}
+.group-card:after,.panel:after,.admin-panel:after,.admin-item:after,.home-member-card:after,.leaderboard-panel:after,.leaderboard-self:after,.leaderboard-row:after,.public-profile-card:after,.member-community .home-member-card:after,.background-settings-grid>*:after,.card:after,.stat:after,.stat-box:after,.dashboard-card:after,.member-card:after,.intro-card:after,.catalog-card:after{
+ content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;z-index:-1;
+ background:linear-gradient(125deg,rgba(65,238,255,.85),rgba(151,82,255,.9) 30%,rgba(255,73,190,.8) 57%,rgba(255,196,91,.72) 78%,rgba(81,255,196,.8));
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.7;
+}
+.group-card:hover,.panel:hover,.admin-panel:hover,.admin-item:hover,.home-member-card:hover,.leaderboard-row:hover,.dashboard-card:hover,.member-card:hover,.intro-card:hover,.catalog-card:hover{
+ transform:translateY(-2px);border-color:rgba(222,186,255,.9)!important;box-shadow:0 0 0 1px rgba(255,105,215,.22),0 0 18px rgba(154,80,255,.28),0 0 26px rgba(43,219,255,.13),inset 0 0 20px rgba(155,92,255,.06)
+}
+.group-card:after,.home-member-card:after,.leaderboard-row:after{animation:rgb-rim 7s linear infinite}
+@keyframes rgb-rim{0%{filter:hue-rotate(0deg);opacity:.62}50%{filter:hue-rotate(90deg);opacity:.95}100%{filter:hue-rotate(360deg);opacity:.62}}
+/* Better readability without making the whole page black */
+.group-card,.panel,.admin-panel,.admin-item,.leaderboard-row,.leaderboard-self{background-color:rgba(20,15,29,.88)}
+.muted,.group-card p,.panel p,.admin-item p{color:#c7bdd5}
+input,textarea,select,.search{font-family:'Outfit','DM Sans',sans-serif;border-color:#49365c!important;background:rgba(12,9,19,.88)!important;color:#fbf8ff!important;box-shadow:inset 0 0 0 1px rgba(142,93,255,.06)}
+input:focus,textarea:focus,select:focus,.search:focus{outline:none;border-color:#b58aff!important;box-shadow:0 0 0 2px rgba(166,105,255,.22),0 0 17px rgba(132,76,255,.2)!important}
+.btn{font-family:'Outfit','DM Sans',sans-serif;font-weight:700;letter-spacing:.015em;transition:transform .2s,box-shadow .2s,border-color .2s}
+.btn.primary{box-shadow:0 0 17px rgba(147,79,255,.34),0 0 24px rgba(52,210,255,.08)}
+.btn.secondary,.nav-admin{border-color:rgba(176,139,226,.62)!important;box-shadow:0 0 9px rgba(144,77,255,.11)}
+.btn:hover,.nav-admin:hover{box-shadow:0 0 15px rgba(160,91,255,.35),0 0 20px rgba(48,220,255,.12);border-color:#d5baff!important}
+.eyebrow{color:#c8aaff;text-shadow:0 0 12px rgba(163,104,255,.25)}
+.hero h1{letter-spacing:-.045em;line-height:1.05}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
