@@ -54,7 +54,7 @@ async function loadLeaderboard(myUserId) {
   const mine = rows.find(row => row.user_id === myUserId);
   if (mine) {
     $("#my-tier-name").textContent = mine.tier || "Warrior";
-    $("#my-tier-points").textContent = `${mine.points || 0} poin · ${mine.pending_coins || 0} koin menunggu`;
+    $("#my-tier-points").textContent = `${mine.points || 0} poin total`;
     $("#my-tier-shield").textContent = tierSymbols[mine.tier] || "♜";
   }
   if (!rows.length) { list.innerHTML = '<p class="muted">Belum ada data leaderboard.</p>'; return; }
@@ -590,7 +590,7 @@ async function loadPublicChat(quiet = false) {
 
   const { data, error } = await db
     .from("public_chat_messages")
-    .select("id,sender_id,body,reply_to_id,created_at")
+    .select("id,sender_id,body,media_url,media_type,reply_to_id,created_at")
     .order("created_at", { ascending: true })
     .limit(250);
 
@@ -714,15 +714,43 @@ async function loadPublicChat(quiet = false) {
       qname.textContent = "↩ " + (parentProfile.display_name || "Member");
 
       const qbody = document.createElement("span");
-      qbody.textContent = parent.body;
+      qbody.textContent = parent.body || ((parent.media_type || "").startsWith("video/") ? "[Video]" : "[Foto]");
 
       quote.append(qname, qbody);
       article.append(quote);
     }
 
-    const body = document.createElement("div");
-    body.className = "public-message-body";
-    body.textContent = message.body;
+    if (message.body) {
+      const body = document.createElement("div");
+      body.className = "public-message-body";
+      body.textContent = message.body;
+      article.append(body);
+    }
+    if (message.media_url) {
+      if ((message.media_type || "").startsWith("video/")) {
+        const media = document.createElement("video");
+        media.className = "public-message-media";
+        media.src = message.media_url;
+        media.controls = true;
+        media.preload = "metadata";
+        media.playsInline = true;
+        media.setAttribute("aria-label", "Video dari " + (profile.display_name || "member"));
+        article.append(media);
+      } else if ((message.media_type || "").startsWith("image/")) {
+        const media = document.createElement("a");
+        media.href = message.media_url;
+        media.target = "_blank";
+        media.rel = "noopener noreferrer";
+        media.className = "public-message-media-link";
+        const image = document.createElement("img");
+        image.className = "public-message-media";
+        image.src = message.media_url;
+        image.alt = "Foto dari " + (profile.display_name || "member");
+        image.loading = "lazy";
+        media.append(image);
+        article.append(media);
+      }
+    }
 
     const time = document.createElement("time");
     time.className = "public-message-time";
@@ -896,11 +924,11 @@ $("#public-message-menu")?.addEventListener("click", async event => {
 
   if (action === "copy") {
     try {
-      await navigator.clipboard.writeText(message.body);
+      await navigator.clipboard.writeText(message.body || message.media_url || "");
       say("#public-chat-status", "Teks pesan disalin.");
     } catch {
       const area = document.createElement("textarea");
-      area.value = message.body;
+      area.value = message.body || message.media_url || "";
       document.body.append(area);
       area.select();
       const ok = document.execCommand("copy");
@@ -965,6 +993,15 @@ $("#public-reply-cancel")?.addEventListener("click", () => {
   setPublicReply(null);
 });
 
+function updatePublicMediaSelection() {
+  const input = $("#public-chat-media");
+  const label = $("#public-media-selection");
+  if (!input || !label) return;
+  const file = input.files?.[0];
+  label.textContent = file ? `Lampiran: ${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB` : "Foto/video opsional · Maksimal 25 MB";
+}
+$("#public-chat-media")?.addEventListener("change", updatePublicMediaSelection);
+
 $("#public-chat-form")?.addEventListener("submit", async event => {
   event.preventDefault();
 
@@ -972,15 +1009,53 @@ $("#public-chat-form")?.addEventListener("submit", async event => {
 
   const input = $("#public-chat-input");
   const body = input.value.trim();
-  if (!body) return;
+  const mediaInput = $("#public-chat-media");
+  const file = mediaInput?.files?.[0] || null;
+  if (!body && !file) {
+    say("#public-chat-status", "Tulis pesan atau pilih foto/video terlebih dahulu.");
+    return;
+  }
+  if (body.length > 2000) {
+    say("#public-chat-status", "Pesan maksimal 2.000 karakter.");
+    return;
+  }
+  const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif", "video/mp4", "video/webm", "video/ogg"];
+  if (file && !allowed.includes(file.type)) {
+    say("#public-chat-status", "Format tidak didukung. Gunakan JPG, PNG, WEBP, GIF, AVIF, MP4, WEBM, atau OGG.");
+    return;
+  }
+  if (file && file.size > 25 * 1024 * 1024) {
+    say("#public-chat-status", "Ukuran foto/video maksimal 25 MB.");
+    return;
+  }
 
   const button = event.currentTarget.querySelector("button[type=submit]");
   button.disabled = true;
+  const mediaButton = event.currentTarget.querySelector(".public-media-pick");
+  if (mediaButton) mediaButton.style.pointerEvents = "none";
+  let mediaUrl = null;
+  let mediaType = null;
+  if (file) {
+    say("#public-chat-status", "Mengunggah foto/video…");
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-90);
+    const path = `public-chat/${currentUser.id}/${Date.now()}-${safeName}`;
+    const { error: uploadError } = await db.storage.from("community-media").upload(path, file, { upsert: false, contentType: file.type });
+    if (uploadError) {
+      button.disabled = false;
+      if (mediaButton) mediaButton.style.pointerEvents = "";
+      say("#public-chat-status", "Upload gagal: " + uploadError.message + ". Pastikan migration public-message-media.sql sudah dijalankan.");
+      return;
+    }
+    const { data: publicData } = db.storage.from("community-media").getPublicUrl(path);
+    mediaUrl = publicData?.publicUrl || null;
+    mediaType = file.type;
+  }
   say("#public-chat-status", "Mengirim pesan…");
-
   const payload = {
     sender_id: currentUser.id,
-    body,
+    body: body || null,
+    media_url: mediaUrl,
+    media_type: mediaType,
     reply_to_id: publicChatReplyTo?.id || null
   };
 
@@ -989,6 +1064,7 @@ $("#public-chat-form")?.addEventListener("submit", async event => {
     .insert(payload);
 
   button.disabled = false;
+  if (mediaButton) mediaButton.style.pointerEvents = "";
 
   if (error) {
     const detail = [
@@ -1005,11 +1081,13 @@ $("#public-chat-form")?.addEventListener("submit", async event => {
   }
 
   input.value = "";
+  if (mediaInput) mediaInput.value = "";
+  updatePublicMediaSelection();
   setPublicReply(null);
   say("#public-chat-status", "");
   await loadPublicChat();
   // Refresh points/tier immediately after a successful public message.
-  // The actual +5 award is performed by the Supabase database trigger.
+  // The +50 points award is performed by the Supabase database trigger.
   await loadLeaderboard(currentUser.id);
 });
 

@@ -41,17 +41,17 @@
     </div>
     <section id="leaderboard-section" class="section member-section">
       <div class="eyebrow">COMMUNITY RANKING</div><h2>Leaderboard</h2>
-      <p class="muted">Setiap pesan chat publik mengumpulkan 50 koin. Koin dibagikan ke total poin setiap hari pukul 15.00 WIB. Chat pribadi tidak dihitung.</p>
-      <div class="panel leaderboard-panel"><div class="leaderboard-self"><span class="leaderboard-shield" id="my-tier-shield">♜</span><div><small>TIER KAMU</small><strong id="my-tier-name">Warrior</strong><span id="my-tier-points">0 poin</span></div></div><div class="daily-coin-note">✦ Koin harian terkumpul dulu, lalu dikonversi menjadi poin leaderboard pukul <strong>15.00 WIB</strong>.</div><div id="leaderboard-list" class="leaderboard-list"><p class="muted">Memuat leaderboard…</p></div><p id="leaderboard-status" class="status" aria-live="polite"></p></div>
+      <p class="muted">Setiap pesan publik yang berhasil dikirim menambah 50 poin tier secara langsung. Chat pribadi tidak dihitung.</p>
+      <div class="panel leaderboard-panel"><div class="leaderboard-self"><span class="leaderboard-shield" id="my-tier-shield">♜</span><div><small>TIER KAMU</small><strong id="my-tier-name">Warrior</strong><span id="my-tier-points">0 poin</span></div></div><div class="daily-coin-note">✦ Pesan Public Message memberi <strong>+50 poin</strong> untuk tier. Pesan pribadi tidak dihitung.</div><div id="leaderboard-list" class="leaderboard-list"><p class="muted">Memuat leaderboard…</p></div><p id="leaderboard-status" class="status" aria-live="polite"></p></div>
     </section>
     <section id="public-chat-section" class="section member-section public-chat-section">
-      <div class="eyebrow">COMMUNITY LOUNGE</div><h2>Chat Publik</h2>
-      <p class="muted">Ngobrol bersama semua member, Admin, dan Owner. Ketuk gelembung pesan untuk reaction, balas, salin, atau hapus pesan milikmu.</p>
+      <div class="eyebrow">COMMUNITY LOUNGE</div><h2>Public Message</h2>
+      <p class="muted">Ruang obrolan bersama semua member, Admin, dan Owner. Kirim teks, foto, atau video; balas pesan, beri reaction, dan salin teks.</p>
       <div class="public-chat-panel panel">
-        <header class="public-chat-header"><div class="public-chat-icon">✦</div><div><strong>Ruang Publik Grup Pemuda</strong><small>Semua akun terdaftar dapat membaca dan mengirim pesan</small></div><span class="public-online-pill">PUBLIK</span></header>
+        <header class="public-chat-header"><div class="public-chat-icon">✦</div><div><strong>Public Message · Grup Pemuda</strong><small>Ruang komunitas bersama · +50 koin per pesan publik</small></div><span class="public-online-pill">PUBLIK</span></header>
         <div id="public-chat-messages" class="public-chat-messages" aria-live="polite"><p class="muted">Memuat chat publik…</p></div>
         <div id="public-reply-preview" class="public-reply-preview hidden"><div><small>Membalas pesan</small><strong id="public-reply-name"></strong><p id="public-reply-text"></p></div><button id="public-reply-cancel" type="button" aria-label="Batal membalas">×</button></div>
-        <form id="public-chat-form" class="public-chat-compose"><textarea id="public-chat-input" rows="1" maxlength="2000" placeholder="Tulis pesan untuk semua member…" aria-label="Tulis pesan publik" required></textarea><button class="btn primary chat-send" type="submit" aria-label="Kirim pesan publik">➤</button></form>
+        <form id="public-chat-form" class="public-chat-compose"><label class="public-media-pick" for="public-chat-media" title="Lampirkan foto atau video" aria-label="Lampirkan foto atau video">＋<input id="public-chat-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/ogg" hidden></label><textarea id="public-chat-input" rows="1" maxlength="2000" placeholder="Tulis pesan untuk semua member…" aria-label="Tulis pesan publik"></textarea><button class="btn primary chat-send" type="submit" aria-label="Kirim pesan publik">➤</button></form><p id="public-media-selection" class="public-media-selection muted">Foto/video opsional · Maksimal 25 MB</p>
         <p id="public-chat-status" class="status" aria-live="polite"></p>
       </div>
       <div id="public-message-menu" class="public-message-menu hidden" role="dialog" aria-label="Aksi pesan"><div class="public-reaction-row"><button type="button" data-reaction="❤️">❤️</button><button type="button" data-reaction="😂">😂</button><button type="button" data-reaction="👍">👍</button><button type="button" data-reaction="🔥">🔥</button><button type="button" data-reaction="😮">😮</button><button type="button" data-reaction="😢">😢</button></div><button type="button" data-action="reply">↩ Balas pesan</button><button type="button" data-action="copy">▢ Salin teks</button><button type="button" data-action="delete" class="hidden">⌫ Hapus pesan saya</button></div>
@@ -84,8 +84,8 @@
       <div class="member-shortcuts">
         <a class="panel shortcut-card" href="/#grup"><span class="shortcut-icon">⌕</span><h3>Jelajahi Grup</h3><p class="muted">Temukan komunitas WhatsApp sesuai minatmu.</p><span class="shortcut-arrow">Buka halaman ↗</span></a>
         <a class="panel shortcut-card" href="/#intro"><span class="shortcut-icon">✎</span><h3>Buat Intro</h3><p class="muted">Perkenalkan dirimu kepada komunitas.</p><span class="shortcut-arrow">Buat intro ↗</span></a>
-        <a class="panel shortcut-card" href="#public-chat-section"><span class="shortcut-icon">✦</span><h3>Chat Publik</h3><p class="muted">Ngobrol bersama seluruh komunitas.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
-        <a class="panel shortcut-card" href="#chat-section"><span class="shortcut-icon">✉</span><h3>Chat Pribadi</h3><p class="muted">Kirim pesan pribadi ke member, Owner, atau Admin.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
+        <a class="panel shortcut-card" href="#public-chat-section"><span class="shortcut-icon">✦</span><h3>Public Message</h3><p class="muted">Ngobrol bersama seluruh komunitas.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
+        <a class="panel shortcut-card" href="#chat-section"><span class="shortcut-icon">✉</span><h3>Chat Pribadi</h3><p class="muted">Percakapan privat dengan member, Owner, atau Admin.</p><span class="shortcut-arrow">Buka chat ↗</span></a>
         <a class="panel shortcut-card" href="/members.html"><span class="shortcut-icon">♧</span><h3>Member Terdaftar</h3><p class="muted">Lihat nama member yang sudah bergabung.</p><span class="shortcut-arrow">Lihat daftar ↗</span></a>
         <a class="panel shortcut-card" href="/"><span class="shortcut-icon">⌂</span><h3>Website Utama</h3><p class="muted">Kembali ke halaman utama Grup Pemuda.</p><span class="shortcut-arrow">Kembali ↗</span></a>
       </div>
