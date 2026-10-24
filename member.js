@@ -34,6 +34,18 @@ function dateLabel(value) {
 }
 
 const tierSymbols = {"Warrior":"♜","Elite":"♞","Master":"♟","Grand Master":"⬟","Epic":"⬢","Legend":"♛","Mythic":"✦","Mythical Honor":"✧","Mythical Glory":"✹","Mythical Immortal":"✺"};
+let presenceTimer = null;
+async function updatePresence(userId) {
+  if (!db || !userId || document.visibilityState === "hidden") return;
+  const { error } = await db.from("member_presence").upsert({user_id:userId,last_seen_at:new Date().toISOString()},{onConflict:"user_id"});
+  if (error) console.warn("Presence belum aktif:", error.message);
+}
+function startPresence(userId) {
+  if (presenceTimer) clearInterval(presenceTimer);
+  updatePresence(userId);
+  presenceTimer = setInterval(()=>updatePresence(userId), 45000);
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState === "visible") updatePresence(userId);});
+}
 
 async function loadLeaderboard(myUserId) {
   const list = $("#leaderboard-list"); if (!list || !db) return;
@@ -42,7 +54,7 @@ async function loadLeaderboard(myUserId) {
   const rows = (data || []).slice(0, 5);
   if (!rows.length) { list.innerHTML = '<p class="muted">Belum ada member yang dipilih Owner untuk leaderboard.</p>'; return; }
   const medals = {1:"🥇",2:"🥈",3:"🥉",4:"4",5:"5"};
-  list.innerHTML = rows.map(row => { const p = row.staff_profiles || {}; return `<div class="leaderboard-row ${row.user_id === myUserId ? 'is-me' : ''}"><span class="leaderboard-rank">${medals[row.rank] || row.rank}</span><span class="leaderboard-row-shield">${row.rank <= 3 ? '✦' : '♜'}</span><div class="leaderboard-person"><strong>${safeText(p.display_name || 'Member')}</strong><small>${safeText(String(p.role || 'member').toUpperCase())}${row.note ? ' · ' + safeText(row.note) : ''}</small></div><strong class="leaderboard-score">TOP ${row.rank}</strong></div>`; }).join('');
+  list.innerHTML = rows.map(row => { const p = row.staff_profiles || {}; return `<button type="button" data-profile-id="${row.user_id}" class="leaderboard-row profile-open ${row.user_id === myUserId ? 'is-me' : ''}"><span class="leaderboard-rank">${medals[row.rank] || row.rank}</span><span class="leaderboard-row-shield">${row.rank <= 3 ? '✦' : '♜'}</span><div class="leaderboard-person"><strong>${safeText(p.display_name || 'Member')}</strong><small>${safeText(String(p.role || 'member').toUpperCase())}${row.note ? ' · ' + safeText(row.note) : ''}</small></div><strong class="leaderboard-score">TOP ${row.rank}</strong></button>`; }).join('');
 }
 
 function showLogin(message = "") {
@@ -126,6 +138,7 @@ async function loadDashboard(user) {
   }
 
   currentUser = user;
+  startPresence(user.id);
   showDashboard();
   await initializeChat(user);
 }
@@ -262,6 +275,9 @@ async function initializeChat(user) {
   }
 
   chatProfiles = data || [];
+  const {data: presenceRows} = await db.from("member_presence").select("user_id,last_seen_at");
+  const now = Date.now(); const presenceMap = new Map((presenceRows||[]).map(p=>[p.user_id, now - new Date(p.last_seen_at).getTime() < 120000]));
+  chatProfiles = chatProfiles.map(p=>({...p,is_online:presenceMap.get(p.user_id)===true}));
   renderChatContacts();
 
   $("#chat-search").oninput = renderChatContacts;
@@ -324,7 +340,8 @@ function renderChatContacts() {
     name.textContent = profile.display_name || "Member";
 
     const role = document.createElement("small");
-    role.textContent = roleLabel(profile.role);
+    role.textContent = roleLabel(profile.role) + " · " + (profile.is_online ? "Online" : "Offline");
+    role.classList.add("presence-label", profile.is_online ? "online" : "offline");
 
     copy.append(name, role);
     button.append(avatar, copy);
@@ -507,14 +524,18 @@ document.addEventListener("click", async event => {
   if (!modal) return;
   modal.classList.remove("hidden");
   say("#public-profile-name", "Memuat profil…");
-  say("#public-profile-role", ""); say("#public-profile-tier", ""); say("#public-profile-points", "");
+  say("#public-profile-role", ""); say("#public-profile-tier", ""); say("#public-profile-points", ""); say("#public-profile-status", "");
   const photo = $("#public-profile-avatar"); if (photo) { photo.style.backgroundImage = ""; photo.textContent = "友"; }
-  const {data, error} = await db.from("leaderboard_public").select("user_id,display_name,role,points,tier,avatar_url").eq("user_id", uid).maybeSingle();
+  const {data, error} = await db.from("chat_member_directory").select("user_id,display_name,role,avatar_url,created_at").eq("user_id", uid).maybeSingle();
   if (error || !data) { say("#public-profile-name", "Profil tidak dapat dimuat"); return; }
   say("#public-profile-name", data.display_name || "Member");
   say("#public-profile-role", String(data.role || "member").toUpperCase());
-  say("#public-profile-tier", `${data.tier || "Warrior"} ${tierSymbols[data.tier] || "♜"}`);
-  say("#public-profile-points", `${Number(data.points)||0} poin total`);
+  say("#public-profile-tier", "");
+  say("#public-profile-points", dateLabel(data.created_at) ? `Bergabung sejak ${dateLabel(data.created_at)}` : "");
+  const {data: presence} = await db.from("member_presence").select("last_seen_at").eq("user_id",uid).maybeSingle();
+  const online = !!presence && Date.now() - new Date(presence.last_seen_at).getTime() < 120000;
+  say("#public-profile-status", online ? "● Online" : "● Offline");
+  const statusEl = $("#public-profile-status"); if (statusEl) statusEl.className = "presence-label " + (online ? "online" : "offline");
   if (photo) { photo.textContent = data.avatar_url ? "" : "友"; photo.style.backgroundImage = data.avatar_url ? `url("${data.avatar_url}")` : ""; }
   const chatButton = $("#public-profile-chat");
   if (chatButton) { chatButton.classList.toggle("hidden", uid === currentUser.id); chatButton.onclick = () => { modal.classList.add("hidden"); const target = chatProfiles.find(p => p.user_id === uid); if (target) { selectedChatUser = target; document.querySelector("#chat-section")?.scrollIntoView({behavior:"smooth"}); initializeChat(currentUser); } else { location.href = `/member.html?chat=${encodeURIComponent(uid)}#chat-section`; } }; }
@@ -531,6 +552,8 @@ $("#logout")?.addEventListener("click", async () => {
     say("#dashboard-status", "Gagal keluar: " + error.message);
   } else {
     clearChatPolling();
+    if (presenceTimer) clearInterval(presenceTimer);
+    presenceTimer = null;
     currentUser = null;
     selectedChatUser = null;
     showLogin("Kamu sudah keluar dari akun.");

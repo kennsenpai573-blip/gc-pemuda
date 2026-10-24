@@ -77,3 +77,11 @@ Halaman `members.html` menampilkan foto profil dari kolom `staff_profiles.avatar
 
 ## Leaderboard manual oleh Owner
 Jalankan `manual-leaderboard-migration.sql` di Supabase SQL Editor. Setelah deployment, Owner membuka Ruang Owner & Admin → 🏆 Leaderboard untuk memilih member dan menetapkan peringkat 1–5. Peringkat tidak menggunakan poin.
+
+
+## Status Online/Offline dan Profil Member
+
+- Jalankan `member-presence-migration.sql` satu kali di Supabase SQL Editor. Migrasi ini membuat tabel heartbeat dan view publik yang tidak menampilkan UUID/email.
+- Setelah deploy, member yang login ke Dashboard akan mengirim heartbeat berkala. Status dianggap **Online (hijau)** jika heartbeat kurang dari 2 menit; selain itu **Offline (merah)**.
+- Pada halaman `members.html`, ketuk kartu/foto/nama member untuk membuka modal profil. Baris leaderboard di dashboard juga bisa diketuk untuk membuka profil.
+- Fitur ini belum aktif di website live sampai SQL dijalankan dan project terbaru dideploy ke Vercel.
