@@ -75,3 +75,8 @@ Setelah deploy, buka Supabase → SQL Editor lalu jalankan seluruh isi `backgrou
 - Owner: buka `/admin.html` → tab **Background** → pilih foto/video dari file media HP → unggah dan terapkan. Batas upload background 50 MB; foto dan video MP4/WebM/OGG didukung.
 - Member: masuk ke `/member.html` → bagian **Foto profil** → pilih gambar maksimal 5 MB → simpan.
 - Media menggunakan URL publik supaya background dan avatar dapat ditampilkan pada halaman publik. Jangan unggah foto pribadi/sensitif.
+
+
+## Mengatur foto background dari dashboard Owner
+
+Di `/admin.html`, login sebagai Owner lalu buka tab **Background**. Pilih bagian **Foto Background Utama — Temukan komunitasmu**, **Foto Background Jelajahi Grup**, **Foto Background Kenalan Dulu, Yuk**, atau **Foto Background Aturan Komunitas**. Pilih foto/video dari HP lalu tekan **Unggah & Terapkan ke Bagian Ini**. Pengaturan disimpan di `site_settings` dan file media di bucket `community-media`. Pastikan policy terbaru dari `background-profile-migration.sql` sudah diterapkan di Supabase SQL Editor. Setelah mengunggah, muat ulang website.

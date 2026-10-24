@@ -8,7 +8,7 @@ create table if not exists public.site_settings (
 );
 alter table public.site_settings enable row level security;
 drop policy if exists "public reads home background" on public.site_settings;
-create policy "public reads home background" on public.site_settings for select to anon, authenticated using (key = 'home_background');
+create policy "public reads home background" on public.site_settings for select to anon, authenticated using (key in ('home_background','groups_background','intro_background','rules_background'));
 drop policy if exists "owner manages site settings" on public.site_settings;
 create policy "owner manages site settings" on public.site_settings for all to authenticated using (public.is_owner()) with check (public.is_owner());
 -- Member hanya dapat memperbarui kolom avatar_url miliknya melalui policy RLS.
