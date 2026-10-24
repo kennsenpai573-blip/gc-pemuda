@@ -23,7 +23,7 @@ const msg = (id, s) => {
 
 function tab(n) {
   all(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === n));
-  ["approvals", "members", "groups", "intros", "stats", "background", "staff"].forEach(k => {
+  ["approvals", "members", "groups", "intros", "stats", "background", "staff", "leaderboard"].forEach(k => {
     const el = $("#tab-" + k);
     if (el) el.classList.toggle("hidden", k !== n);
   });
@@ -33,6 +33,32 @@ all(".tab").forEach(b => b.addEventListener("click", () => tab(b.dataset.tab)));
 
 const item = (title, sub, buttons = "") =>
   `<div class="admin-item"><div><strong>${esc(title)}</strong><small>${esc(sub)}</small></div><div class="item-actions">${buttons}</div></div>`;
+
+
+async function loadManualLeaderboard() {
+  if (role !== "owner" || !db) return;
+  const select = $("#leaderboard-member-select");
+  const { data: members, error: memberError } = await db.from("staff_profiles").select("user_id,display_name,role,approval_status").eq("role", "member").order("display_name", { ascending: true });
+  if (memberError) { msg("#leaderboard-admin-status", "Gagal memuat member: " + memberError.message); return; }
+  select.innerHTML = '<option value="">Pilih member…</option>' + (members || []).filter(m => (m.approval_status || "approved") === "approved").map(m => `<option value="${esc(m.user_id)}">${esc(m.display_name || "Member")}</option>`).join("");
+  const { data: rows, error } = await db.from("manual_leaderboard").select("rank,user_id,note,staff_profiles(display_name,role)").order("rank", { ascending: true });
+  if (error) { $("#leaderboard-admin-list").innerHTML = '<p class="muted">Tabel belum tersedia. Jalankan manual-leaderboard-migration.sql di Supabase terlebih dahulu.</p>'; msg("#leaderboard-admin-status", error.message); return; }
+  $("#leaderboard-admin-list").innerHTML = (rows || []).map(r => item(`Peringkat ${r.rank} — ${r.staff_profiles?.display_name || "Member"}`, r.note || "Tidak ada catatan", `<button class="btn danger" data-leaderboard-remove="${r.rank}">Hapus peringkat</button>`)).join("") || '<p class="muted">Belum ada peringkat yang ditetapkan Owner.</p>';
+  all("#leaderboard-admin-list [data-leaderboard-remove]").forEach(b => b.addEventListener("click", async () => {
+    if (role !== "owner" || !confirm(`Hapus penetapan peringkat ${b.dataset.leaderboardRemove}?`)) return;
+    const { error } = await db.from("manual_leaderboard").delete().eq("rank", Number(b.dataset.leaderboardRemove));
+    msg("#leaderboard-admin-status", error ? error.message : "Peringkat dihapus."); if (!error) loadManualLeaderboard();
+  }));
+}
+$("#leaderboard-form")?.addEventListener("submit", async e => {
+  e.preventDefault(); if (role !== "owner") { msg("#leaderboard-admin-status", "Hanya Owner yang dapat mengatur leaderboard."); return; }
+  const f = new FormData(e.currentTarget); const rank = Number(f.get("rank")), user_id = String(f.get("user_id") || ""), note = String(f.get("note") || "").trim();
+  if (!user_id || rank < 1 || rank > 5) { msg("#leaderboard-admin-status", "Pilih member dan peringkat 1–5."); return; }
+  const { error: removeError } = await db.from("manual_leaderboard").delete().eq("user_id", user_id).neq("rank", rank);
+  if (removeError) { msg("#leaderboard-admin-status", removeError.message); return; }
+  const { error } = await db.from("manual_leaderboard").upsert({ rank, user_id, note, updated_at: new Date().toISOString() }, { onConflict: "rank" });
+  msg("#leaderboard-admin-status", error ? error.message : `Berhasil menetapkan peringkat ${rank}.`); if (!error) { e.currentTarget.reset(); loadManualLeaderboard(); }
+});
 
 async function refresh() {
   if (!db) {
@@ -82,7 +108,7 @@ async function refresh() {
   $("#dashboard").classList.remove("hidden");
   $("#role-badge").textContent = role.toUpperCase();
   all(".owner-only").forEach(e => e.classList.toggle("hidden", role !== "owner"));
-  if (role === "owner") loadBackgroundSettings();
+  if (role === "owner") { loadBackgroundSettings(); loadManualLeaderboard(); }
 
   const { data: members, error: membersError } = await db
     .from("staff_profiles")

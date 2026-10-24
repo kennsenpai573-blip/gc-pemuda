@@ -73,3 +73,7 @@ Setelah deploy, buka Supabase → SQL Editor lalu jalankan seluruh isi `backgrou
 ## Perbaikan foto profil member di halaman publik
 
 Halaman `members.html` menampilkan foto profil dari kolom `staff_profiles.avatar_url`. Setelah mengunggah ZIP pembaruan ini ke repository, jalankan ulang bagian pembuatan view `public_member_directory` dari `member-registration-migration.sql` di Supabase SQL Editor agar view mengikutsertakan `avatar_url`. View hanya memublikasikan nama tampilan, tanggal bergabung, dan URL foto profil; email serta UUID tidak diekspos. Lalu lakukan redeploy Vercel dan muat ulang halaman Member Terdaftar.
+
+
+## Leaderboard manual oleh Owner
+Jalankan `manual-leaderboard-migration.sql` di Supabase SQL Editor. Setelah deployment, Owner membuka Ruang Owner & Admin → 🏆 Leaderboard untuk memilih member dan menetapkan peringkat 1–5. Peringkat tidak menggunakan poin.

@@ -36,23 +36,13 @@ function dateLabel(value) {
 const tierSymbols = {"Warrior":"♜","Elite":"♞","Master":"♟","Grand Master":"⬟","Epic":"⬢","Legend":"♛","Mythic":"✦","Mythical Honor":"✧","Mythical Glory":"✹","Mythical Immortal":"✺"};
 
 async function loadLeaderboard(myUserId) {
-  const list = $("#leaderboard-list");
-  if (!list || !db) return;
-  const { data, error } = await db.from("leaderboard_public").select("user_id,display_name,role,points,tier,avatar_url").order("points", { ascending: false }).limit(100);
-  if (error) {
-    list.innerHTML = '<p class="muted">Leaderboard belum aktif. Owner perlu menjalankan file leaderboard-migration.sql di Supabase SQL Editor.</p>';
-    say("#leaderboard-status", error.message);
-    return;
-  }
-  const rows = data || [];
-  const mine = rows.find(row => row.user_id === myUserId);
-  if (mine) {
-    $("#my-tier-name").textContent = mine.tier || "Warrior";
-    $("#my-tier-points").textContent = `${mine.points || 0} poin total`;
-    $("#my-tier-shield").textContent = tierSymbols[mine.tier] || "♜";
-  }
-  if (!rows.length) { list.innerHTML = '<p class="muted">Belum ada data leaderboard.</p>'; return; }
-  list.innerHTML = rows.map((row, index) => `<button type="button" class="leaderboard-row profile-open ${row.user_id === myUserId ? 'is-me' : ''}" data-profile-id="${row.user_id}"><span class="leaderboard-rank">${index < 3 ? ['🥇','🥈','🥉'][index] : index + 1}</span><span class="leaderboard-row-shield">${tierSymbols[row.tier] || '♜'}</span><div class="leaderboard-person"><strong>${safeText(row.display_name || 'Member')}</strong><small>${safeText(row.tier || 'Warrior')} · ${safeText(String(row.role || 'member').toUpperCase())}</small></div><strong class="leaderboard-score">${Number(row.points) || 0} <small>PTS</small></strong></button>`).join('');
+  const list = $("#leaderboard-list"); if (!list || !db) return;
+  const { data, error } = await db.from("manual_leaderboard").select("rank,user_id,note,staff_profiles(display_name,role,avatar_url)").order("rank", { ascending: true });
+  if (error) { list.innerHTML = '<p class="muted">Leaderboard belum tersedia. Owner perlu menyiapkan tabel manual leaderboard di Supabase.</p>'; say("#leaderboard-status", error.message); return; }
+  const rows = (data || []).slice(0, 5);
+  if (!rows.length) { list.innerHTML = '<p class="muted">Belum ada member yang dipilih Owner untuk leaderboard.</p>'; return; }
+  const medals = {1:"🥇",2:"🥈",3:"🥉",4:"4",5:"5"};
+  list.innerHTML = rows.map(row => { const p = row.staff_profiles || {}; return `<div class="leaderboard-row ${row.user_id === myUserId ? 'is-me' : ''}"><span class="leaderboard-rank">${medals[row.rank] || row.rank}</span><span class="leaderboard-row-shield">${row.rank <= 3 ? '✦' : '♜'}</span><div class="leaderboard-person"><strong>${safeText(p.display_name || 'Member')}</strong><small>${safeText(String(p.role || 'member').toUpperCase())}${row.note ? ' · ' + safeText(row.note) : ''}</small></div><strong class="leaderboard-score">TOP ${row.rank}</strong></div>`; }).join('');
 }
 
 function showLogin(message = "") {
