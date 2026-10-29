@@ -1,0 +1,3 @@
+-- Leaderboard sekarang otomatis dari staff_profiles.points.
+-- Tidak perlu menjalankan migrasi leaderboard manual.
+-- File ini dipertahankan sebagai catatan kompatibilitas; tidak membuat tabel manual_leaderboard.

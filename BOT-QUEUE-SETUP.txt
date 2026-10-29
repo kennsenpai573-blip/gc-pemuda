@@ -1,0 +1,29 @@
+INTEGRASI ANTREAN PESAN WHATSAPP — Grup Pemuda
+
+Yang ditambahkan:
+- Tab Owner “Kirim Pesan” di admin.html.
+- Antrean aman melalui tabel whatsapp_message_queue (RLS Owner).
+- Helper bot web-whatsapp-queue.js yang membaca antrean memakai service role key di Pterodactyl dan mengirim melalui sesi Baileys yang sudah ada.
+- Riwayat status queued/processing/sent/failed di dashboard.
+
+LANGKAH WAJIB
+1. Backup folder bot Pterodactyl dan website sebelum mengganti file.
+2. Supabase → SQL Editor → New query → jalankan whatsapp-queue-migration.sql.
+   Migration ini memakai public.is_owner(), fungsi Owner yang sudah dipakai project.
+3. Upload web-whatsapp-queue.js ke folder root bot (sejajar index.js).
+4. Tambahkan baris import di bagian atas index.js:
+   import { startWhatsAppQueue } from './web-whatsapp-queue.js';
+5. Di handler Exp.ev.on('connection.update'), di dalam blok if (update.connection === "open") tambahkan:
+   startWhatsAppQueue(Exp);
+   Jika memakai paket bot yang sudah dipatch, dua perubahan tersebut sudah ada.
+6. Pterodactyl → Startup/Variables atau environment server: set SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY.
+   Gunakan URL project Supabase dan SECRET/service_role key yang baru dari dashboard. Jangan masukkan key itu ke GitHub, website, chat, atau config.js.
+7. Restart bot. Pastikan console menunjukkan [web-queue] Owner message queue enabled.
+8. Deploy website yang sudah diperbarui ke GitHub/Vercel. Login sebagai Owner → tab ✉️ Kirim Pesan.
+9. Uji dengan nomor sendiri terlebih dahulu. Nomor harus berupa digit internasional tanpa +, misalnya 62812xxxxxxx.
+
+CATATAN KEAMANAN
+- Jangan gunakan untuk spam; kirim hanya ke penerima yang setuju.
+- Queue dijalankan hanya ketika koneksi WhatsApp aktif.
+- Belum ada akses langsung ke panel/GitHub/Supabase milik Anda dari sini; Anda tetap perlu upload/deploy dan menjalankan SQL.
+- Pengujian runtime harus dilakukan pada instance bot milik Anda setelah deploy. Jangan hapus folder connection/session.

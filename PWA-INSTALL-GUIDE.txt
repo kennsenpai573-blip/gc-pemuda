@@ -1,0 +1,20 @@
+PWA FULLSCREEN — GRUP PEMUDA 友
+
+Apa yang ditambahkan:
+- manifest.webmanifest dengan display fullscreen
+- ikon PWA 192x192 dan 512x512
+- service worker untuk shell/cache dasar
+- pendaftaran service worker dari index.html
+
+CARA PASANG (HP Android):
+1. Backup repository/project yang sekarang.
+2. Ekstrak ZIP ini lalu unggah isi folder gc-pemuda-main ke repository, mengganti file project lama dengan versi ini. Jangan hapus konfigurasi Supabase yang benar.
+3. Deploy ulang di Vercel dan tunggu status deployment Ready.
+4. Buka https://gc-pemuda.vercel.app/ lewat Chrome.
+5. Ketuk menu ⋮ Chrome > 'Tambahkan ke layar utama' atau 'Install app' (nama menu bisa berbeda).
+6. Buka ikon Grup Pemuda yang muncul di layar utama, bukan tab Chrome biasa.
+
+Catatan:
+- Bilah alamat Chrome hilang ketika situs dibuka sebagai aplikasi terpasang jika browser/Android mendukung mode fullscreen; beberapa perangkat mungkin masih menampilkan status bar sistem.
+- Manifest tidak bisa menyembunyikan bilah Chrome ketika situs dibuka sebagai tab biasa.
+- Service worker hanya cache shell dasar; data Supabase dan media tetap memerlukan internet.

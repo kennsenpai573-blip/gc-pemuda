@@ -1,0 +1,16 @@
+PENGATURAN INTRO VIDEO WEBSITE — UPLOAD LANGSUNG DARI HP
+
+1. Deploy seluruh isi ZIP ke Vercel seperti biasa.
+2. Pastikan Supabase Storage memiliki bucket PUBLIC bernama community-media dan Owner memiliki izin upload. Project sebelumnya menggunakan bucket ini untuk media background.
+3. Supabase > SQL Editor > jalankan site-intro-migration.sql jika belum pernah dijalankan.
+4. Login sebagai OWNER ke /admin.html.
+5. Buka menu 🎬 Intro Website.
+6. Tekan Pilih video intro, lalu pilih video dari Galeri/File di HP Android.
+7. Tekan Upload & Simpan Intro. Tidak perlu menempel URL.
+
+SARAN VIDEO HD:
+- MP4 (H.264), 1080 x 1920, vertikal 9:16, 60 FPS.
+- Fitur membatasi file hingga 100 MB, tetapi upload juga dibatasi limit file pada Supabase Storage dan kuota paket. Jika upload ditolak karena ukuran, buka Supabase Dashboard > Storage > Settings/bucket community-media dan sesuaikan batas ukuran yang tersedia pada paket. Jangan melebihi kuota penyimpanan.
+- Resolusi/FPS tidak bisa ditingkatkan hanya dengan memilih file; sumber videonya sendiri harus sudah 1080p 60 FPS.
+
+Intro ditampilkan fullscreen, hanya tombol Lewati, dan video MP4/WebM/OGG otomatis menutup intro saat pemutaran selesai. Autoplay dimulai mute untuk memenuhi kebijakan browser HP.

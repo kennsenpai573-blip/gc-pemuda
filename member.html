@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0912"><title>Dashboard Member | — Grup Pemuda`友</title>
+  <meta name="description" content="Dashboard pribadi member — Grup Pemuda`友.">
+  <link rel="stylesheet" href="/styles.css">
+<style>
+.public-purchase-level{display:block;margin:14px auto;padding:14px 16px;max-width:360px;border:1px solid rgba(168,85,247,.45);border-radius:16px;background:linear-gradient(135deg,rgba(88,28,135,.22),rgba(15,15,25,.9));text-align:left}
+.public-purchase-level.hidden{display:none}.public-purchase-level .level-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}.public-purchase-level .level-title{font-weight:800;color:#e9d5ff}.public-purchase-level .level-chip{font-size:.75rem;padding:4px 8px;border-radius:999px;background:rgba(168,85,247,.18);color:#e9d5ff}.public-purchase-level .level-track{height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin:10px 0 7px}.public-purchase-level .level-fill{height:100%;background:linear-gradient(90deg,#9333ea,#e9d5ff);border-radius:99px}.public-purchase-level .level-meta{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:#c4b5fd}
+</style>
+
+<style>.member-border-art{width:100%;height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;background:transparent}.member-border-art img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 9px #a855f755)}.member-border-fallback{min-height:90px;display:flex;align-items:center;justify-content:center;color:#e9d5ff}.member-border-card .btn:disabled{opacity:.8;cursor:default}</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">友</span><span>— Grup Pemuda<small>MEMBER DASHBOARD</small></span></a>
+  <nav><a href="/">Website</a><a href="/saldo.html">💰 Saldo, Poin & Toko Border</a><a href="/members.html">Member Terdaftar</a><a href="/register.html">Daftar Member</a></nav>
+</header>
+<main class="wrap admin-wrap member-dashboard">
+  <div class="eyebrow"><span class="dot"></span> PRIVATE MEMBER AREA</div>
+  <h1 class="member-title">Dashboard <span>Member</span></h1>
+  <p class="muted">Kelola profilmu, temukan member lain, dan lanjutkan percakapan pribadi.</p>
+
+  <section id="login-panel" class="panel admin-panel">
+    <h2>Masuk ke akunmu</h2>
+    <p class="muted">Gunakan email dan password yang kamu pakai saat mendaftar.</p>
+    <form id="login-form" class="form-grid">
+      <label>Email<input name="email" type="email" autocomplete="email" required placeholder="nama@email.com"></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required placeholder="Password akunmu"></label>
+      <button class="btn primary" type="submit">Masuk ke Dashboard ↗</button>
+      <p id="login-status" class="status" aria-live="polite"></p>
+    </form>
+    <p class="muted">Belum punya akun? <a href="/register.html" class="member-link">Daftar member</a>.</p><p class="muted">Punya hak Admin/Owner? <a href="/admin.html" class="member-link">Login Admin terpisah</a>.</p>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="member-welcome panel">
+      <div class="member-avatar" id="member-avatar">友</div>
+      <div class="member-welcome-copy"><div class="eyebrow">WELCOME BACK</div><h2>Halo, <span id="profile-name">Member</span>!</h2><p class="muted">Senang melihatmu kembali di Grup Pemuda.</p><a class="btn primary" href="/saldo.html">💰 Lihat Poin, Saldo & Beli Border</a></div>
+      <span id="profile-role" class="role-pill">MEMBER</span>
+    </div>
+    <section class="panel profile-edit-panel" id="member-border-collection"><h2>Koleksi Border Saya</h2><p class="muted">Pilih border yang sudah kamu beli untuk memasangnya pada foto profil. Kamu bisa menggantinya kapan saja.</p><div id="member-border-status" class="status" aria-live="polite"></div><div id="member-border-list" class="wallet-grid"><p class="muted">Memuat koleksi border…</p></div><button type="button" id="member-border-remove" class="btn secondary" style="margin-top:12px">Lepas border</button></section>
+    <section class="panel profile-edit-panel"><h2>Verifikasi TikTok</h2><p class="muted">Masukkan username dan link akun TikTok. Owner akan memeriksa akun secara manual. Jika disetujui, lencana tampil di profil publik dan link membuka akun TikTok yang benar.</p><form id="tiktok-verification-form" class="form-grid"><label>Username TikTok<input name="username" required maxlength="40" placeholder="@username"></label><label>Link profil TikTok<input name="profile_url" type="url" required placeholder="https://www.tiktok.com/@username"></label><button class="btn primary" type="submit">Kirim untuk diperiksa</button><p id="tiktok-verification-status" class="status" aria-live="polite"></p></form></section>
+    <section class="panel profile-edit-panel"><h2>Foto profil</h2><p class="muted">Pilih foto dari galeri HP. Format gambar maksimal 5 MB.</p><form id="avatar-form" class="form-grid"><label>Pilih foto profil<input id="avatar-file" type="file" accept="image/*" required></label><div id="avatar-cropper" class="avatar-cropper hidden"><p class="muted">Atur foto agar pas di lingkaran. Foto akan disimpan dengan rasio 1:1.</p><div class="avatar-crop-preview"><img id="avatar-crop-preview-img" alt="Pratinjau foto profil"></div><label>Perbesar / perkecil foto<input id="avatar-zoom" type="range" min="1" max="3" step="0.05" value="1"></label><p class="muted">Geser gambar di area pratinjau untuk mengatur posisi.</p></div><button class="btn primary" type="submit">Simpan Foto Profil</button><p id="avatar-status" class="status" aria-live="polite"></p></form></section><div class="member-summary-grid">
+      <article class="panel summary-card"><span class="summary-icon">✦</span><p class="muted">Nama tampilan</p><strong id="summary-name">—</strong></article>
+      <article class="panel summary-card"><span class="summary-icon">✉</span><p class="muted">Email akun</p><strong id="summary-email">—</strong></article>
+      <article class="panel summary-card"><span class="summary-icon">⌁</span><p class="muted">Bergabung sejak</p><strong id="summary-date">—</strong></article>
+    </div>
+    <section id="chat-section" class="section member-section chat-section">
+      <div class="eyebrow">PRIVATE MESSAGES</div><h2>Chat Member</h2>
+      <p class="muted">Kirim pesan pribadi ke member lain. Nama dan role pengirim ditampilkan dari profil resmi.</p>
+      <div class="chat-layout panel">
+        <aside class="chat-sidebar">
+          <label class="chat-search-label" for="chat-search">Cari member</label>
+          <input id="chat-search" class="search" type="search" placeholder="Cari nama member…" autocomplete="off">
+          <div id="chat-contacts" class="chat-contacts"><p class="muted">Memuat daftar member…</p></div>
+        </aside>
+        <section class="chat-conversation" aria-label="Percakapan pribadi">
+          <div id="chat-empty" class="chat-empty"><span>友</span><strong>Pilih member untuk mulai chat</strong><p class="muted">Percakapan hanya terlihat oleh pengirim dan penerima.</p></div>
+          <div id="chat-active" class="hidden">
+            <header class="chat-person-header"><div class="chat-person-avatar" id="chat-person-avatar">友</div><div><strong id="chat-person-name">Member</strong><small id="chat-person-role">MEMBER</small></div></header>
+            <div id="chat-messages" class="chat-messages" aria-live="polite"><p class="muted">Memuat pesan…</p></div>
+            <form id="chat-form" class="chat-compose">
+              <textarea id="chat-message-input" rows="1" maxlength="2000" placeholder="Tulis pesan…" aria-label="Tulis pesan" required></textarea>
+              <button class="btn primary chat-send" type="submit" aria-label="Kirim pesan">➤</button>
+            </form>
+            <p id="chat-status" class="status" aria-live="polite"></p>
+          </div>
+        </section>
+      </div>
+    </section>
+    <div class="member-actions"><p id="dashboard-status" class="status" aria-live="polite"></p><button id="logout" class="btn secondary" type="button">Keluar dari akun</button></div>
+  </section>
+</main>
+<div id="public-profile-modal" class="public-profile-modal hidden" role="dialog" aria-modal="true" aria-label="Profil member"><div class="public-profile-card panel"><button type="button" id="public-profile-close" class="public-profile-close" aria-label="Tutup">×</button><div id="public-profile-avatar" class="public-profile-avatar">友</div><div class="eyebrow">PROFIL ANGGOTA</div><h2 id="public-profile-name">Member</h2><span id="public-profile-role" class="role-pill">MEMBER</span><p id="public-profile-status" class="presence-label offline">● Offline</p><p id="public-profile-points" class="muted">Bergabung —</p><p id="public-profile-tiktok" class="muted"></p><div id="public-profile-tier" class="public-purchase-level hidden"></div><button id="public-profile-chat" type="button" class="btn primary">Chat Pribadi</button></div></div>
+<footer class="footer"><div class="wrap footer-inner"><span>© <span id="year"></span> — Grup Pemuda`友</span><a href="/">Kembali ke website</a></div></footer>
+<script type="module" src="/site-background.js"></script><script type="module" src="/member.js"></script><script type="module" src="/member-border-collection.js"></script>
+<div id="global-member-profile" class="public-profile-modal hidden" role="dialog" aria-modal="true" aria-label="Profil member"><div class="public-profile-card panel global-member-card"><button type="button" class="public-profile-close" data-global-profile-close aria-label="Tutup">×</button><div id="global-profile-cover" class="global-profile-cover"></div><div id="global-profile-avatar" class="public-profile-avatar">友</div><div class="eyebrow">PROFIL ANGGOTA</div><h2 id="global-profile-name">Member</h2><span id="global-profile-role" class="role-pill">MEMBER</span><p id="global-profile-rank" class="global-profile-rank"></p><p id="global-profile-status" class="presence-label offline">● Offline</p><p id="global-profile-joined" class="muted">Bergabung —</p><p id="global-profile-location" class="muted">Indonesia</p><p id="global-profile-tiktok" class="muted"></p><button id="global-profile-chat" type="button" class="btn primary hidden">Chat Pribadi</button><button id="global-profile-friend" type="button" class="btn secondary hidden" style="margin-top:10px;width:100%">＋ Tambah Teman</button><p id="global-profile-friend-note" class="muted" aria-live="polite"></p></div></div><script type="module" src="/global-member-profile.js"></script></body>
+</html>

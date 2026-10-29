@@ -1,0 +1,18 @@
+FITUR BERTEMAN — GRUP PEMUDA 友
+
+Fitur:
+- Tombol Tambah Teman di kartu profil global.
+- Mengirim permintaan teman ke member terdaftar lain.
+- Member penerima bisa menerima permintaan.
+- Status berteman ditampilkan; hubungan bisa dihapus.
+- Akun yang belum terdaftar sebagai member tidak bisa mengirim permintaan melalui fungsi database.
+
+PENTING: Jalankan friend-feature-migration.sql satu kali di Supabase SQL Editor sebelum deploy website. Jalankan SQL secara utuh dan pastikan tidak ada error. SQL ini menambahkan tabel member_friendships dan fungsi RPC; tidak mengganti view member/leaderboard yang sudah ada.
+
+Deploy:
+1. Ekstrak ZIP.
+2. Jalankan friend-feature-migration.sql di Supabase SQL Editor.
+3. Unggah seluruh isi folder gc-pemuda-main ke repositori GitHub yang terhubung dengan Vercel.
+4. Setelah deploy selesai, login sebagai member terdaftar, buka profil member lain, lalu coba Tambah Teman.
+
+Catatan: koneksi live ke Supabase tidak tersedia untuk pengujian dari sini. Uji di website setelah SQL dan deployment.

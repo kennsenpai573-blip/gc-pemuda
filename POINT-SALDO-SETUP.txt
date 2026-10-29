@@ -1,0 +1,18 @@
+PENTING: PEMISAHAN POIN, LEVEL, DAN SALDO
+
+1. Backup database Supabase sebelum menjalankan migrasi.
+2. Buka Supabase Dashboard > SQL Editor.
+3. Jalankan point-level-separation-migration.sql setelah saldo-ecosystem-migration.sql dan avatar-frame-migration.sql.
+4. Pastikan saldo-migration.sql dan saldo-ecosystem-migration.sql yang lama sudah dijalankan.
+5. Upload semua file website dalam ZIP ini ke repository, termasuk saldo.html, saldo.js, member.js, members.js, app.js, styles.css, dan point-level-separation-migration.sql.
+
+Aturan:
+- Saldo = mata uang virtual toko. Dipakai membeli border/avatar frame dan item lain.
+- Poin = progres level, terpisah dari saldo.
+- Level 1 mulai dari 0 poin. Setiap 100 poin naik satu level: Level 2, 3, ... 100, 101, dan seterusnya.
+- Bonus harian memberi 20 poin level, bukan saldo.
+- Reward misi menambah poin level, bukan saldo.
+- Hadiah antaranggota memindahkan saldo, bukan poin.
+- Pembelian border menggunakan saldo dan border yang dibeli dapat dipasang dari Koleksi Saya.
+
+Catatan: migrasi SQL wajib dijalankan di Supabase; mengunggah file saja tidak mengubah database yang sudah berjalan.

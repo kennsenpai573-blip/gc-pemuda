@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "— Grup Pemuda 友",
+  "short_name": "Grup Pemuda",
+  "description": "Komunitas — Grup Pemuda 友",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#0b0912",
+  "theme_color": "#0b0912",
+  "icons": [
+    {"src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
