@@ -3,7 +3,7 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 const $=s=>document.querySelector(s), db=SUPABASE_URL.startsWith("https://")&&!SUPABASE_ANON_KEY.includes("PASTE_")?createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 const fmtSaldo=n=>new Intl.NumberFormat("id-ID").format(Number(n)||0)+" saldo";const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));const fmt=n=>new Intl.NumberFormat("id-ID").format(Number(n)||0)+" poin";const say=(id,s)=>{const e=$(id);if(e)e.textContent=s||""};let me=null, owner=false, profiles=[];
 function cosmeticPreview(item,small=false){
- const raw=String(item.icon||'').toLowerCase().split('/').pop();
+ const iconValue=String(item.icon||'');const raw=iconValue.toLowerCase().split('/').pop();
  const itemName=String(item.name||item.item_name||'');
  const name=(itemName+' '+String(item.category||'')+' '+raw).toLowerCase();
  const artByName=[
@@ -11,16 +11,17 @@ function cosmeticPreview(item,small=false){
   [/border\s*alya|bingkai alya/, 'frame-border-alya.png'],
   [/border\s*mahiru|bingkai mahiru/, 'frame-border-mahiru.png'],
   [/border\s*tohka|bingkai tohka/, 'frame-border-tohka.png'],
+  [/border\s*elaina.*blue|elaina.*biru/, 'frame-border-mai-blue.png'],
   [/border\s*kurumi|bingkai kurumi/, 'frame-border-kurumi.png'],
-  [/border\s*mai.*blue|mai.*biru/, 'frame-border-mai-blue.png'],
-  [/border\s*mai|bingkai mai/, 'frame-border-mai.png'],
-  [/border\s*elaina|bingkai elaina/, 'frame-border-elaina.png'],
+  [/border\s*mai|bingkai mai/, 'frame-border-kurumi.png'],
+  [/border\s*mai|bingkai mai/, 'frame-border-maiv2.png'],
   [/cosmic\s*lavender/, 'frame-cosmic-lavender.png'],
   [/crimson\s*legend/, 'frame-crimson-legend.png']
  ];
  const matched=artByName.find(([re])=>re.test(itemName));
  const art=matched?.[1] || (raw.startsWith('frame-border-')||['frame-cosmic-lavender.png','frame-crimson-legend.png','frame-shadow-blossom.png'].includes(raw)?raw:'');
  const label=esc(itemName||'kosmetik profil');
+ if(/^https?:\/\//i.test(iconValue))return `<div class="cosmetic-preview custom-art-frame ${small?'owned-preview':''}" role="img" aria-label="Pratinjau ${label}"><img class="cosmetic-frame-art" src="${esc(iconValue)}" alt="${label}" loading="lazy" onerror="this.closest('.custom-art-frame').classList.add('art-missing');this.remove()"></div>`;
  if(art)return `<div class="cosmetic-preview custom-art-frame ${small?'owned-preview':''}" role="img" aria-label="Pratinjau ${label}"><img class="cosmetic-frame-art" src="/${art}" alt="${label}" loading="lazy" onerror="this.closest('.custom-art-frame').classList.add('art-missing');this.remove()"></div>`;
  let kind='frame';if(raw.includes('effect')||name.includes('efek'))kind='effect';if(raw.includes('badge')||name.includes('gelar')||name.includes('lencana'))kind='badge';
  let family='frame-purple';if(/emas|gold|royal/.test(name))family='frame-gold';else if(/es|ice|cyan|ocean/.test(name))family='frame-ice';else if(/mawar|rose|pink|love/.test(name))family='frame-rose';else if(/neon|rgb|rainbow|pelangi/.test(name))family='frame-neon';else if(/silver|perak|chrome/.test(name))family='frame-silver';

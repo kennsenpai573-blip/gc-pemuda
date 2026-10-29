@@ -12,8 +12,8 @@ FROM (VALUES
  ('Border Tohka', 'Border anime Tohka dengan kristal dan cahaya ungu.', 'frame-border-tohka.png'),
  ('Border Mai', 'Border anime Mai dengan sakura dan cahaya biru-ungu.', 'frame-border-mai.png'),
  ('Border Kurumi', 'Border anime Kurumi dengan jam dan ornamen merah gelap.', 'frame-border-kurumi.png'),
- ('Border Elaina', 'Border anime Elaina dengan sihir, kupu-kupu, dan kristal ungu.', 'frame-border-mai-blue.png'),
- ('Border Mai Blue', 'Varian border Mai dengan sakura dan cahaya biru.', 'frame-border-elaina.png')
+ ('Border Elaina', 'Border anime Elaina dengan sihir, kupu-kupu, dan kristal ungu.', 'frame-border-elaina.png'),
+ ('Border Mai Blue', 'Varian border Mai dengan sakura dan cahaya biru.', 'frame-border-mai-blue.png')
 ) AS v(name, description, icon)
 WHERE NOT EXISTS (SELECT 1 FROM public.wallet_shop_items i WHERE i.name=v.name AND i.category='frame');
 

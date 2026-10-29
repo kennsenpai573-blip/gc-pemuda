@@ -261,7 +261,7 @@ async function refresh() {
   all(".owner-only").forEach(e => e.classList.toggle("hidden", role !== "owner"));
   all(".staff-bot-access").forEach(e => e.classList.toggle("hidden", !["owner", "admin"].includes(role)));
   loadChannels();
-  if (role === "owner") { loadBackgroundSettings(); loadTikTokVerifications(); loadBotPresence(); loadUpSwHistory(); }
+  if (role === "owner") { loadBackgroundSettings(); loadTikTokVerifications(); loadBotPresence(); loadUpSwHistory(); loadBorderMaker(); }
   if (["owner", "admin"].includes(role)) loadBotMessageHistory();
 
   const { data: members, error: membersError } = await db
@@ -603,7 +603,94 @@ if (!configured) {
 
 refresh();
 
-setInterval(() => { if (role === "owner") loadBotPresence(); loadUpSwHistory(); }, 15000);
+
+
+// Owner-only custom avatar border manager
+let borderDraftUrl = "", borderDraftPath = "", borderRows = [];
+const borderForm = $("#border-maker-form");
+const borderPreview = $("#border-art-preview");
+function borderPreviewUpdate(url) {
+  if (!borderPreview) return;
+  const f = new FormData(borderForm);
+  borderPreview.style.setProperty("--border-glow", String(f.get("glow_color") || "#b65cff"));
+  borderPreview.dataset.animation = String(f.get("animation") || "pulse");
+  borderPreview.innerHTML = url ? `<img src="${esc(url)}" alt="Pratinjau border">` : "<span>Pratinjau border</span>";
+  const width = Number(f.get("glow_width") || 0), bright = Number(f.get("glow_brightness") || 0);
+  const img = borderPreview.querySelector("img");
+  if (img) img.style.filter = `brightness(${0.5 + bright / 100}) drop-shadow(0 0 ${width}px ${String(f.get("glow_color") || "#b65cff")})`;
+}
+["#border-thickness", "#border-brightness", "#border-speed"].forEach(sel => $(sel)?.addEventListener("input", () => {
+  const v = $(sel).value;
+  const out = sel === "#border-thickness" ? "#border-thickness-value" : sel === "#border-brightness" ? "#border-brightness-value" : "#border-speed-value";
+  $(out).textContent = sel === "#border-thickness" ? v : `${v}%`;
+  borderPreviewUpdate(borderDraftUrl);
+}));
+["animation", "glow_color"].forEach(n => borderForm?.elements[n]?.addEventListener("input", () => borderPreviewUpdate(borderDraftUrl)));
+$("#border-art-file")?.addEventListener("change", e => {
+  const file = e.target.files?.[0]; if (!file) return;
+  if (!file.type.startsWith("image/")) { msg("#border-maker-status", "Pilih file gambar PNG/WebP."); return; }
+  if (borderDraftUrl.startsWith("blob:")) URL.revokeObjectURL(borderDraftUrl);
+  borderDraftUrl = URL.createObjectURL(file); borderDraftPath = ""; borderPreviewUpdate(borderDraftUrl);
+});
+async function loadBorderMaker() {
+  if (role !== "owner" || !db) return;
+  const box = $("#border-maker-list"); if (!box) return;
+  const { data, error } = await db.from("custom_avatar_borders").select("*").order("created_at", { ascending: false });
+  if (error) { box.innerHTML = `<p class="muted">Belum bisa membaca daftar border: ${esc(error.message)}. Jalankan border-maker-migration.sql.</p>`; return; }
+  borderRows = data || [];
+  box.innerHTML = borderRows.map(r => item(r.name, `${Number(r.price).toLocaleString("id-ID")} saldo · ${r.is_active ? "Aktif di toko" : "Disembunyikan"} · Efek ${r.animation}`, `<button class="btn secondary" data-border-edit="${esc(r.id)}">Edit</button><button class="btn danger" data-border-delete="${esc(r.id)}">Hapus</button>`)).join("") || '<p class="muted">Belum ada border buatan Owner.</p>';
+  all("[data-border-edit]").forEach(b => b.addEventListener("click", () => {
+    const r = borderRows.find(x => x.id === b.dataset.borderEdit); if (!r) return;
+    borderForm.elements.id.value = r.id; borderForm.elements.name.value = r.name; borderForm.elements.price.value = r.price;
+    borderForm.elements.animation.value = r.animation || "pulse"; borderForm.elements.glow_color.value = r.glow_color || "#b65cff";
+    borderForm.elements.glow_width.value = r.glow_width ?? 6; borderForm.elements.glow_brightness.value = r.glow_brightness ?? 70; borderForm.elements.glow_speed.value = r.glow_speed ?? 50; borderForm.elements.is_active.checked = !!r.is_active;
+    borderDraftUrl = r.image_url; borderDraftPath = r.storage_path || ""; $("#border-thickness-value").textContent = borderForm.elements.glow_width.value; $("#border-brightness-value").textContent = borderForm.elements.glow_brightness.value + "%"; $("#border-speed-value").textContent = borderForm.elements.glow_speed.value + "%"; borderPreviewUpdate(borderDraftUrl); msg("#border-maker-status", "Mode edit: ubah yang diperlukan lalu tekan Simpan border.");
+  }));
+  all("[data-border-delete]").forEach(b => b.addEventListener("click", async () => {
+    if (!confirm("Hapus border ini? Item yang sudah dimiliki member tidak akan otomatis terhapus dari koleksi.")) return;
+    const r = borderRows.find(x => x.id === b.dataset.borderDelete); if (!r) return;
+    const { error } = await db.from("custom_avatar_borders").delete().eq("id", r.id);
+    if (!error && r.shop_item_id) await db.from("wallet_shop_items").update({ is_active: false }).eq("id", r.shop_item_id);
+    if (error) { msg("#border-maker-status", "Gagal menghapus: " + error.message); return; }
+    if (r.storage_path) await db.storage.from("community-media").remove([r.storage_path]);
+    msg("#border-maker-status", "Border dihapus dari katalog Owner."); await loadBorderMaker();
+  }));
+}
+$("#border-maker-reset")?.addEventListener("click", () => { borderForm.reset(); borderForm.elements.id.value = ""; borderDraftUrl = ""; borderDraftPath = ""; $("#border-thickness-value").textContent = "6"; $("#border-brightness-value").textContent = "70%"; $("#border-speed-value").textContent = "50%"; borderPreviewUpdate(""); msg("#border-maker-status", "Form siap untuk border baru."); });
+borderForm?.addEventListener("submit", async e => {
+  e.preventDefault(); if (role !== "owner" || !db) return;
+  const f = new FormData(borderForm), name = String(f.get("name") || "").trim(), price = Number(f.get("price")), file = $("#border-art-file").files?.[0];
+  if (!name || !Number.isSafeInteger(price) || price < 0) { msg("#border-maker-status", "Periksa nama dan harga border."); return; }
+  if (!file && !borderDraftUrl) { msg("#border-maker-status", "Upload gambar border terlebih dahulu."); return; }
+  msg("#border-maker-status", "Menyimpan border…");
+  let imageUrl = borderDraftUrl, storagePath = borderDraftPath;
+  if (file) {
+    const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+    storagePath = `custom-borders/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await db.storage.from("community-media").upload(storagePath, file, { upsert: false, contentType: file.type });
+    if (uploadError) { msg("#border-maker-status", "Upload gagal: " + uploadError.message + ". Pastikan bucket community-media menerima upload Owner."); return; }
+    imageUrl = db.storage.from("community-media").getPublicUrl(storagePath).data.publicUrl;
+  }
+  const row = { name, price, image_url: imageUrl, storage_path: storagePath || null, animation: String(f.get("animation")), glow_color: String(f.get("glow_color")), glow_width: Number(f.get("glow_width")), glow_brightness: Number(f.get("glow_brightness")), glow_speed: Number(f.get("glow_speed")), is_active: f.get("is_active") === "on", updated_at: new Date().toISOString() };
+  const id = String(f.get("id") || "");
+  const existing = borderRows.find(x => x.id === id);
+  const shopRow = { name, description: `Border buatan Owner · efek ${row.animation}`, category: "frame", icon: imageUrl, price, is_active: row.is_active };
+  let shopItemId = existing?.shop_item_id || null;
+  if (shopItemId) {
+    const { error: shopError } = await db.from("wallet_shop_items").update(shopRow).eq("id", shopItemId);
+    if (shopError) { msg("#border-maker-status", "Gagal memperbarui item toko: " + shopError.message); return; }
+  } else {
+    const { data: shopItem, error: shopError } = await db.from("wallet_shop_items").insert(shopRow).select("id").single();
+    if (shopError) { msg("#border-maker-status", "Gambar sudah diunggah, tetapi item toko gagal dibuat: " + shopError.message); return; }
+    shopItemId = shopItem.id;
+  }
+  row.shop_item_id = shopItemId;
+  const result = id ? await db.from("custom_avatar_borders").update(row).eq("id", id) : await db.from("custom_avatar_borders").insert(row);
+  if (result.error) { msg("#border-maker-status", "Item toko tersimpan, tetapi data efek gagal: " + result.error.message); return; }
+  msg("#border-maker-status", "Border tersimpan dan itemnya disinkronkan ke toko. Efek lanjutan pada profil/leaderboard memerlukan renderer border dinamis."); borderForm.reset(); borderForm.elements.id.value = ""; borderDraftUrl = ""; borderDraftPath = ""; borderPreviewUpdate(""); await loadBorderMaker();
+});
+
+setInterval(() => { if (role === "owner") { loadBotPresence(); loadBorderMaker(); } loadUpSwHistory(); }, 15000);
 
 
 async function loadResetPointMembers() {
