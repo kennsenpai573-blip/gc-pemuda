@@ -605,6 +605,61 @@ refresh();
 
 
 
+// Ready-made effect presets for the Owner border maker. These are combinations of existing animation, color and glow controls.
+const BORDER_EFFECT_PRESETS = [
+  {id:'galaxy-purple',name:'🌌 Galaksi Ungu',animation:'galaxy-swirl',color:'#b65cff',width:9,brightness:115,speed:68,desc:'Pusaran kosmik ungu dengan cincin cahaya tebal.'},
+  {id:'rainbow-prism',name:'🌈 Prisma Pelangi',animation:'rainbow-orbit',color:'#ff4fd8',width:8,brightness:120,speed:80,desc:'Orbit pelangi terang dengan spektrum warna.'},
+  {id:'star-queen',name:'👑 Ratu Bintang',animation:'starfall',color:'#fff0a8',width:7,brightness:125,speed:55,desc:'Bintang jatuh dan cahaya keemasan.'},
+  {id:'diamond-luxe',name:'💎 Berlian Mewah',animation:'diamond-glint',color:'#c9f6ff',width:6,brightness:145,speed:45,desc:'Kilau berlian putih kebiruan.'},
+  {id:'neon-cyber',name:'🧬 Cyber Neon',animation:'liquid-neon',color:'#00f5ff',width:10,brightness:135,speed:75,desc:'Neon cair cyan untuk tampilan futuristik.'},
+  {id:'pink-glitter',name:'💗 Glitter Sakura',animation:'pink-glitter',color:'#ff72c6',width:7,brightness:125,speed:60,desc:'Glitter merah muda yang berkilau.'},
+  {id:'gold-royal',name:'✨ Emas Kerajaan',animation:'golden-glitter',color:'#ffd36b',width:8,brightness:130,speed:48,desc:'Cahaya emas elegan dan berkilau.'},
+  {id:'silver-moon',name:'🌙 Perak Bulan',animation:'moonlight',color:'#dceaff',width:6,brightness:110,speed:35,desc:'Cahaya bulan lembut berwarna perak.'},
+  {id:'blue-flame',name:'🔥 Api Biru',animation:'blue-flame',color:'#00cfff',width:9,brightness:140,speed:88,desc:'Cahaya api biru dengan denyut cepat.'},
+  {id:'purple-flame',name:'🔥 Api Ungu',animation:'purple-flame',color:'#d04dff',width:9,brightness:140,speed:82,desc:'Api ungu terang dengan aura magis.'},
+  {id:'electric-storm',name:'⚡ Badai Listrik',animation:'electric-arcs',color:'#83f7ff',width:7,brightness:145,speed:95,desc:'Busur listrik cepat dan tajam.'},
+  {id:'frost-crystal',name:'❄️ Kristal Frost',animation:'crystal-shine',color:'#a8f2ff',width:6,brightness:125,speed:42,desc:'Kristal es dengan kilau dingin.'},
+  {id:'aurora-dream',name:'🌌 Aurora Dream',animation:'aurora',color:'#5effcf',width:10,brightness:115,speed:38,desc:'Aura hijau toska dengan gerak lembut.'},
+  {id:'meteor-rush',name:'☄️ Hujan Meteor',animation:'meteor-shower',color:'#ffad66',width:7,brightness:130,speed:90,desc:'Meteor dan percikan hangat.'},
+  {id:'magic-witch',name:'🪄 Sihir Penyihir',animation:'magic-runes',color:'#bd75ff',width:7,brightness:120,speed:50,desc:'Rune sihir berputar dengan aura violet.'},
+  {id:'cosmic-blue',name:'🪐 Kosmik Biru',animation:'cosmic',color:'#619bff',width:8,brightness:125,speed:62,desc:'Orbit kosmik biru dengan cahaya bintang.'},
+  {id:'red-dragon',name:'🐉 Naga Crimson',animation:'electric',color:'#ff3158',width:9,brightness:135,speed:85,desc:'Aura merah crimson dengan kilatan.'},
+  {id:'emerald',name:'💚 Zamrud',animation:'spectrum',color:'#42ff9b',width:7,brightness:120,speed:55,desc:'Cahaya zamrud dengan spektrum bergerak.'},
+  {id:'sunrise',name:'🌅 Fajar Emas',animation:'sunrise-glow',color:'#ff9b43',width:8,brightness:125,speed:40,desc:'Cahaya matahari hangat dan berdenyut.'},
+  {id:'ocean',name:'🌊 Samudra Neon',animation:'underwater',color:'#25d9ff',width:9,brightness:120,speed:58,desc:'Gelombang biru seperti cahaya bawah laut.'},
+  {id:'laser-scan',name:'🔴 Laser Scanner',animation:'laser-sweep',color:'#ff355e',width:6,brightness:140,speed:92,desc:'Sinar laser menyapu tepi border.'},
+  {id:'holo',name:'👾 Hologram',animation:'hologram',color:'#6dfcff',width:6,brightness:125,speed:65,desc:'Kilau hologram futuristik.'},
+  {id:'stardust',name:'✨ Debu Bintang',animation:'stardust',color:'#e5caff',width:6,brightness:115,speed:50,desc:'Partikel bintang halus.'},
+  {id:'fireflies',name:'🌟 Kunang-kunang',animation:'fireflies',color:'#eaff8a',width:5,brightness:115,speed:36,desc:'Titik cahaya kecil berkelap-kelip.'},
+  {id:'vortex',name:'🌀 Vortex Energi',animation:'vortex',color:'#fa58ff',width:10,brightness:135,speed:90,desc:'Pusaran energi berputar cepat.'},
+  {id:'double-orbit',name:'🪐 Orbit Ganda',animation:'double-rotate',color:'#a58bff',width:8,brightness:120,speed:65,desc:'Dua cincin bergerak berlawanan.'},
+  {id:'pink-candy',name:'🍬 Candy Pop',animation:'candy-cycle',color:'#ff78cf',width:8,brightness:130,speed:72,desc:'Warna permen yang berganti.'},
+  {id:'plasma',name:'🔮 Plasma',animation:'plasma',color:'#ff54db',width:10,brightness:135,speed:75,desc:'Plasma neon dengan gelombang kuat.'},
+  {id:'soft-pulse',name:'💜 Aura Lembut',animation:'breathing',color:'#b78cff',width:5,brightness:85,speed:30,desc:'Cahaya lembut yang bernapas.'},
+  {id:'rainbow-pulse',name:'🌈 Denyut Pelangi',animation:'rainbow-pulse',color:'#ff55dc',width:8,brightness:130,speed:70,desc:'Cincin pelangi berdenyut.'},
+  {id:'constellation',name:'🌠 Konstelasi',animation:'constellation',color:'#b5d5ff',width:6,brightness:115,speed:40,desc:'Pola bintang seperti rasi konstelasi.'},
+  {id:'no-motion',name:'🕊️ Elegan Tanpa Gerak',animation:'none',color:'#c6a2ff',width:5,brightness:75,speed:0,desc:'Border statis dengan cahaya tipis.'}
+];
+const presetSelect = document.querySelector('#border-effect-preset');
+if (presetSelect) presetSelect.innerHTML = '<option value="">— Pilih preset efek —</option>' + BORDER_EFFECT_PRESETS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+function applyBorderPreset() {
+  const preset = BORDER_EFFECT_PRESETS.find(p => p.id === presetSelect?.value);
+  if (!preset || !borderForm) { msg('#border-maker-status', 'Pilih preset efek terlebih dahulu.'); return; }
+  borderForm.elements.animation.value = preset.animation;
+  borderForm.elements.glow_color.value = preset.color;
+  borderForm.elements.glow_width.value = preset.width;
+  borderForm.elements.glow_brightness.value = preset.brightness;
+  borderForm.elements.glow_speed.value = preset.speed;
+  document.querySelector('#border-thickness-value').textContent = preset.width;
+  document.querySelector('#border-brightness-value').textContent = preset.brightness + '%';
+  document.querySelector('#border-speed-value').textContent = preset.speed + '%';
+  document.querySelector('#border-preset-description').textContent = preset.desc;
+  borderPreviewUpdate(borderDraftUrl);
+  msg('#border-maker-status', `Preset “${preset.name}” diterapkan. Unggah/pilih gambar border, lalu simpan.`);
+}
+document.querySelector('#border-preset-apply')?.addEventListener('click', applyBorderPreset);
+presetSelect?.addEventListener('change', () => { const p = BORDER_EFFECT_PRESETS.find(x => x.id === presetSelect.value); document.querySelector('#border-preset-description').textContent = p ? p.desc : 'Pilih preset untuk melihat efek dan pengaturan yang akan diterapkan.'; });
+
 // Owner-only custom avatar border manager
 let borderDraftUrl = "", borderDraftPath = "", borderRows = [];
 const borderForm = $("#border-maker-form");
