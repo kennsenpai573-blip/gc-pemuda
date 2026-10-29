@@ -11,10 +11,10 @@ function cosmeticPreview(item,small=false){
   [/border\s*alya|bingkai alya/, 'frame-border-alya.png'],
   [/border\s*mahiru|bingkai mahiru/, 'frame-border-mahiru.png'],
   [/border\s*tohka|bingkai tohka/, 'frame-border-tohka.png'],
-  [/border\s*elaina.*blue|elaina.*biru/, 'frame-border-mai-blue.png'],
   [/border\s*kurumi|bingkai kurumi/, 'frame-border-kurumi.png'],
-  [/border\s*mai|bingkai mai/, 'frame-border-kurumi.png'],
-  [/border\s*mai|bingkai mai/, 'frame-border-maiv2.png'],
+  [/border\s*mai.*blue|mai.*biru/, 'frame-border-mai-blue.png'],
+  [/border\s*mai|bingkai mai/, 'frame-border-mai.png'],
+  [/border\s*elaina|bingkai elaina/, 'frame-border-elaina.png'],
   [/cosmic\s*lavender/, 'frame-cosmic-lavender.png'],
   [/crimson\s*legend/, 'frame-crimson-legend.png']
  ];
