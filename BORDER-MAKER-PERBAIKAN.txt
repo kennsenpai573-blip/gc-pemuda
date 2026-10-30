@@ -1,0 +1,10 @@
+PERBAIKAN PEMBUAT BORDER
+
+1. Buka Supabase Dashboard > SQL Editor.
+2. Buka file border-maker-fix-rls.sql dari ZIP ini, salin seluruh isinya, lalu jalankan (Run).
+3. Hasil query verifikasi di bagian akhir harus menampilkan akun yang sedang login dan role owner.
+4. Pastikan Storage memiliki bucket bernama community-media. Jangan mengubah bucket menjadi publik seluruhnya; policy hanya mengizinkan baca file di folder custom-borders/.
+5. Deploy ulang isi project ZIP ke GitHub/Vercel jika kode website belum versi terbaru.
+6. Logout lalu login kembali ke website sebagai Owner, kemudian coba simpan border.
+
+Jika query verifikasi tidak mengembalikan baris, akun yang login tidak tercatat sebagai Owner di public.staff_profiles. Jangan mengubah role akun lain secara sembarangan; periksa user_id akun Owner yang benar terlebih dahulu.
